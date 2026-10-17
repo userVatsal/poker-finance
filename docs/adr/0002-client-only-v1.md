@@ -11,7 +11,7 @@ v0.1 is single-player against bots. A backend would add cost, an attack surface,
 
 Run everything in the browser. No accounts, no server, no analytics cookies. The only stored data is an optional display name in the player's own `localStorage`.
 
-Update (2026-10-17): Vercel Web Analytics was added to count page views. It is cookie-free, does not identify individual visitors, and runs only on the Vercel deployment.
+Update (2026-10-17): Vercel Web Analytics was added to count page views. It is cookie-free, does not identify individual visitors, and runs only on the Vercel deployment. Google Analytics with a consent banner followed; see [ADR 0006](0006-google-analytics-with-consent.md).
 
 ## Consequences
 

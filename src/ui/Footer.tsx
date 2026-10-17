@@ -1,3 +1,4 @@
+import { gaEnabled, openCookieSettings } from '../analytics/googleAnalytics';
 import { CONFIG } from '../config';
 
 export function Footer() {
@@ -17,6 +18,18 @@ export function Footer() {
           <a href={CONFIG.REPO_URL} target="_blank" rel="noreferrer">
             Source on GitHub
           </a>
+          {' · '}
+          <a href={`${CONFIG.REPO_URL}/blob/main/docs/privacy.md`} target="_blank" rel="noreferrer">
+            Privacy
+          </a>
+          {gaEnabled() && (
+            <>
+              {' · '}
+              <button className="link-button" onClick={openCookieSettings}>
+                Cookie settings
+              </button>
+            </>
+          )}
         </p>
       </div>
     </footer>

@@ -2,6 +2,44 @@
  * Poker Finance theme — DMU Quant Society identity:
  * black and white, one signal red, terminal type, halftone "density" texture.
  */
+/* Fonts are self-hosted (public/fonts) so no request goes to Google before consent. */
+@font-face {
+  font-family: 'Inter Tight';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-tight-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Tight';
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-tight-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Tight';
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-tight-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+}
+
 :root {
   --bg: #0e0e0c;
   --surface: #131315;
@@ -983,4 +1021,45 @@ a.btn {
     width: 88px;
     height: 88px;
   }
+}
+
+/* Cookie consent banner (only shown when Google Analytics is configured) */
+.consent {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px #000a;
+  animation: deal 0.25s ease-out;
+}
+.consent p {
+  flex: 1 1 320px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.consent-actions {
+  display: flex;
+  gap: 8px;
+}
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-size: inherit;
 }

@@ -35,7 +35,7 @@ Target: a polished public game live well before the DMU Quant Society launch in 
 - Optional accounts and a global leaderboard (Supabase)
 - Society members' leaderboard for the launch event
 - Privacy notice and updated security policy
-- Files: `src/api/`, `docs/privacy.md`, `docs/adr/0006-leaderboard-backend.md`
+- Files: `src/api/`, `docs/privacy.md`, `docs/adr/0007-leaderboard-backend.md`
 
 ## v0.6 — Daily challenge
 
@@ -45,7 +45,7 @@ Target: a polished public game live well before the DMU Quant Society launch in 
 ## v1.0 — Multiplayer
 
 - Live tables for society socials and events, humans and bots mixed
-- Files: `server/` (WebSocket game server reusing `src/engine/`), `docs/adr/0007-multiplayer.md`
+- Files: `server/` (WebSocket game server reusing `src/engine/`), `docs/adr/0008-multiplayer.md`
 
 ## Ongoing
 

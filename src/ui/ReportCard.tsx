@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { describePlayer, vpipRate } from '../bots/opponentModel';
 import { formatMoney, formatSigned } from '../currency/format';
 import type { Session } from '../game/session';
+import { track } from '../analytics/googleAnalytics';
 import { Modal } from './Modal';
 import { linkedInShareUrl, netResult, shareText } from './share';
 
@@ -96,7 +97,13 @@ export function ReportCard({ session, busted, onClose, onRebuy, onNewTable, onLo
         Copy your result, then paste it into the LinkedIn post that opens. Tag DMU Quant Society.
       </p>
       <div className="row-actions">
-        <button className="btn" onClick={copy}>
+        <button
+          className="btn"
+          onClick={() => {
+            track('share', { method: 'copy' });
+            copy();
+          }}
+        >
           {copied ? 'Copied' : 'Copy result'}
         </button>
         <a
@@ -104,7 +111,10 @@ export function ReportCard({ session, busted, onClose, onRebuy, onNewTable, onLo
           href={linkedInShareUrl()}
           target="_blank"
           rel="noreferrer"
-          onClick={copy}
+          onClick={() => {
+            track('share', { method: 'linkedin' });
+            copy();
+          }}
         >
           Share on LinkedIn
         </a>

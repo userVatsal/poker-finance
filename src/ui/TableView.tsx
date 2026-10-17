@@ -14,6 +14,7 @@ import { ReportCard } from './ReportCard';
 import { SeatView } from './Seat';
 import { DeskNotes, HandLog, TableEvents } from './Sidebar';
 import { useSession } from './useSession';
+import { track } from '../analytics/googleAnalytics';
 
 interface Props {
   options: SessionOptions;
@@ -42,8 +43,25 @@ export function TableView({ options, onExit, onRestart, onHowToPlay, onFirms }: 
   const busted = session.isOver;
 
   useEffect(() => {
-    if (busted) setReport(true);
-  }, [busted]);
+    if (busted) {
+      track('bust', { hands: session.stats.handsPlayed });
+      setReport(true);
+    }
+  }, [busted, session]);
+
+  // One event per finished hand: shows how long people keep playing.
+  const finishedHand = hand?.isComplete ? hand.handNumber : 0;
+  useEffect(() => {
+    if (finishedHand > 0) track('hand_complete', { hand_number: finishedHand });
+  }, [finishedHand]);
+
+  const openReport = () => {
+    track('cash_out', {
+      hands: session.stats.handsPlayed,
+      net: Math.round((session.human.stack - session.stats.startStack) / 10 ** c.minorUnits),
+    });
+    setReport(true);
+  };
 
   // Your maths: equity against the players still in the hand.
   const opponentsLeft = hand
@@ -107,7 +125,7 @@ export function TableView({ options, onExit, onRestart, onHowToPlay, onFirms }: 
           <button className="btn btn-ghost btn-sm hide-sm" onClick={onFirms}>
             Firms
           </button>
-          <button className="btn btn-sm" onClick={() => setReport(true)}>
+          <button className="btn btn-sm" onClick={openReport}>
             Cash out
           </button>
         </div>
@@ -127,7 +145,11 @@ export function TableView({ options, onExit, onRestart, onHowToPlay, onFirms }: 
                   hand={hand}
                   currency={c}
                   thinking={thinking === seat.id}
-                  onOpen={() => seat.firmId && setProfile(seat.firmId)}
+                  onOpen={() => {
+                    if (!seat.firmId) return;
+                    track('view_firm', { firm: seat.firmId });
+                    setProfile(seat.firmId);
+                  }}
                 />
               );
             })}
@@ -246,6 +268,7 @@ export function TableView({ options, onExit, onRestart, onHowToPlay, onFirms }: 
           busted={busted}
           onClose={() => setReport(false)}
           onRebuy={() => {
+            track('rebuy');
             rebuy();
             setReport(false);
           }}
