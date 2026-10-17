@@ -31,7 +31,7 @@ Poker Finance is a free browser game for the general public. You sit at a six-se
 | Trend follower      | Bigger after wins, smaller after losses                                          | Man AHL, Winton, Aspect, Lynx                                                                  |
 | Investment bank     | Rarely bluffs, capped risk per hand (capital rules)                              | Goldman Sachs, JPMorgan, Morgan Stanley, Barclays, HSBC, Deutsche Bank, UBS, BNP Paribas       |
 
-Play money only. No sign-up, no ads, no tracking, no prizes.
+Play money only. No sign-up, no ads, no cookies, no prizes. Anonymous page-view counts come from Vercel Web Analytics.
 
 > **Disclaimer.** Firm names describe publicly reported trading styles. The bots are caricatures, not any firm's real strategy. No firm is affiliated with or endorses this game. See [DISCLAIMER.md](DISCLAIMER.md). One config switch replaces every real name with a fictional alias.
 

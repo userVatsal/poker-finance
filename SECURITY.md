@@ -2,7 +2,7 @@
 
 ## Scope
 
-Poker Finance v0.1 is a static website. It has no backend, no accounts, no payments and stores nothing about players except an optional display name in the player's own browser (`localStorage`).
+Poker Finance v0.1 is a static website. It has no backend, no accounts, no payments and stores nothing about players except an optional display name in the player's own browser (`localStorage`). Vercel Web Analytics counts anonymous page views without cookies.
 
 ## Reporting a vulnerability
 
