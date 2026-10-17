@@ -106,6 +106,7 @@ Hosted on Vercel. Every push to `main` deploys to production; every pull request
 - [Development setup (JetBrains)](docs/development.md)
 - [Deployment (Vercel)](docs/deployment.md)
 - [Architecture decision records](docs/adr/)
+- [Intro video source](video/README.md)
 
 ## Contributing
 

@@ -26,3 +26,6 @@ Thumbs.db
 !.idea/runConfigurations/
 !.idea/codeStyles/
 *.iml
+
+# Rendered videos
+video/out/

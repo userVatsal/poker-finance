@@ -1,0 +1,584 @@
+<!doctype html>
+<!--
+  Poker Finance — 30-second intro film (1080 × 1080).
+  Open this file in a browser to preview it (it loops).
+  Render to MP4 with:  python3 video/render.py   (see video/README.md)
+  Every frame is a pure function of time: seek(t) sets the whole scene for second t.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Poker Finance — intro</title>
+<style>
+@font-face { font-family: 'Inter Tight'; font-weight: 400; src: url(fonts/inter-tight-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter Tight'; font-weight: 500; src: url(fonts/inter-tight-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter Tight'; font-weight: 600; src: url(fonts/inter-tight-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter Tight'; font-weight: 700; src: url(fonts/inter-tight-latin-700-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 400; src: url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 500; src: url(fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 700; src: url(fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2'); }
+
+:root {
+  --bg: #0b0b0c; --surface: #131315; --surface-2: #1a1a1d; --surface-3: #232327;
+  --line: #2a2a2f; --line-strong: #3a3a40; --text: #f2f2f0; --muted: #a3a39e; --faint: #6e6e6a;
+  --red: #ff3b2f; --card: #fbfbf8; --card-red: #d4261c; --felt: #0f1110;
+  --mm: #7cc7ff; --quant: #b49cff; --macro: #ffc94d; --pod: #5fd6a4; --trend: #ff8fc8; --bank: #c9d1dc;
+  --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+html, body { margin: 0; background: #000; }
+body { display: grid; place-items: center; min-height: 100vh; }
+#stage {
+  position: relative; width: 1080px; height: 1080px; overflow: hidden;
+  background: var(--bg); color: var(--text); font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+#stage::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(#1e1e22 1.6px, transparent 2px); background-size: 24px 24px;
+}
+.scene { position: absolute; inset: 0; will-change: transform; }
+.abs { position: absolute; }
+.mono { font-family: var(--mono); }
+.word { display: inline-block; will-change: transform; }
+.center { left: 0; right: 0; text-align: center; }
+.red { color: var(--red); }
+.dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex: none; }
+
+/* Scene 1 */
+.headline { font-size: 112px; line-height: 1.0; letter-spacing: -0.04em; font-weight: 600; }
+.handle { font-size: 30px; color: var(--muted); }
+
+/* Scene 2 */
+.title { font-size: 66px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
+.chip {
+  position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; border: 1.5px solid var(--line-strong); border-radius: 999px;
+  font-size: 25px; white-space: nowrap; background: var(--surface);
+}
+.chip .dot { width: 10px; height: 10px; }
+.tile {
+  position: absolute; width: 300px; height: 230px; border: 1.5px solid var(--line);
+  border-radius: 20px; background: var(--surface); padding: 24px; box-sizing: border-box;
+  display: flex; flex-direction: column;
+}
+.tile-name { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 600; }
+.tile-tag { font-family: var(--mono); font-size: 18px; color: var(--muted); margin-top: 8px; }
+.tile-count { font-family: var(--mono); font-size: 76px; font-weight: 500; margin-top: auto; line-height: 1; }
+
+/* Scene 3 */
+.panel { position: absolute; background: var(--surface); border: 1.5px solid var(--line); border-radius: 22px; box-sizing: border-box; }
+.swap { position: absolute; inset: 0; padding: 32px; box-sizing: border-box; }
+.firm { font-size: 40px; font-weight: 600; letter-spacing: -0.02em; }
+.arch { display: flex; align-items: center; gap: 10px; font-size: 22px; color: var(--muted); margin-top: 10px; }
+.stack { font-family: var(--mono); font-size: 34px; margin-top: 22px; }
+.dials { margin-top: 22px; display: grid; gap: 14px; }
+.dial { font-size: 17px; color: var(--muted); }
+.bar { height: 6px; background: var(--surface-3); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--text); width: 0; }
+.action {
+  position: absolute; left: 32px; bottom: 30px; font-family: var(--mono); font-size: 24px; font-weight: 700;
+  padding: 10px 18px; border-radius: 12px;
+}
+.action.raise { background: var(--red); color: #fff; }
+.action.fold { background: var(--surface-3); color: var(--muted); border: 1.5px solid var(--line-strong); }
+.note { border-left: 4px solid var(--red); padding-left: 24px; }
+.concept { font-family: var(--mono); font-size: 21px; letter-spacing: 0.08em; color: var(--red); text-transform: uppercase; }
+.note-firm { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 600; margin: 14px 0 16px; }
+.note-text { font-size: 31px; line-height: 1.32; color: #dcdcd7; }
+.label { font-family: var(--mono); font-size: 18px; letter-spacing: 0.1em; color: var(--faint); text-transform: uppercase; }
+
+/* Scene 4 */
+.felt { position: absolute; background: var(--felt); border: 1.5px solid var(--line); border-radius: 160px; overflow: hidden; }
+.card {
+  position: absolute; width: 100px; height: 140px; border-radius: 12px; background: var(--card); color: #111;
+  font-family: var(--mono); font-weight: 700; box-sizing: border-box; padding: 8px 10px;
+}
+.card.r { color: var(--card-red); }
+.card .rk { font-size: 36px; line-height: 1; }
+.card .st { position: absolute; right: 10px; bottom: 6px; font-size: 48px; line-height: 1; }
+.slot { position: absolute; width: 100px; height: 140px; border-radius: 12px; border: 2px dashed var(--line-strong); box-sizing: border-box; }
+.btn {
+  position: absolute; height: 76px; border-radius: 16px; display: grid; place-items: center;
+  font-size: 28px; font-weight: 500; border: 1.5px solid var(--line-strong); background: var(--surface-2); box-sizing: border-box;
+}
+.btn.red { background: var(--red); border-color: var(--red); color: #fff; }
+.maths { font-family: var(--mono); font-size: 22px; color: var(--muted); }
+.maths b { color: var(--text); font-weight: 500; }
+.big-num { font-family: var(--mono); font-size: 64px; font-weight: 500; line-height: 1; }
+.banner { font-size: 38px; font-weight: 600; }
+
+/* Scene 5 */
+.pill { display: inline-flex; padding: 12px 22px; border: 1.5px solid var(--line-strong); border-radius: 999px; font-size: 26px; margin: 0 6px; }
+.url { display: inline-block; font-family: var(--mono); font-size: 34px; padding: 16px 28px; border-radius: 14px; background: var(--text); color: var(--bg); font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ============ Scene 1: hook ============ -->
+  <section class="scene" id="s1">
+    <svg id="mark1" class="abs" style="left:465px; top:170px" width="150" height="150" viewBox="0 0 64 64"></svg>
+    <div class="abs center handle mono" style="top:340px"><span id="handle1"></span><span id="cursor1" class="red">_</span></div>
+    <div class="abs center headline" style="top:450px">
+      <div><span class="word" id="w0">Can</span> <span class="word" id="w1">you</span> <span class="word" id="w2">beat</span></div>
+      <div><span class="word" id="w3">Wall Street</span></div>
+      <div><span class="word red" id="w4">at poker?</span></div>
+    </div>
+  </section>
+
+  <!-- ============ Scene 2: the opponents ============ -->
+  <section class="scene" id="s2">
+    <div class="abs center title" style="top:90px">
+      <span class="word" id="t2a">37 opponents.</span><br />
+      <span class="word" id="t2b" style="color:var(--muted)">6 trading styles.</span>
+    </div>
+    <div id="tiles"></div>
+    <div id="chips"></div>
+    <div class="abs center" style="top:880px; font-size:30px; color:var(--muted)" id="cap2">Five sit at your table. Bust one and it gets <span class="red">liquidated</span>.</div>
+  </section>
+
+  <!-- ============ Scene 3: each plays the way it trades ============ -->
+  <section class="scene" id="s3">
+    <div class="abs center title" style="top:90px">
+      <span class="word" id="t3a">Each one plays</span><br />
+      <span class="word red" id="t3b">the way it trades.</span>
+    </div>
+    <div class="abs label" style="left:60px; top:300px" id="lab3a">At the table</div>
+    <div class="abs label" style="left:560px; top:300px" id="lab3b">Desk note</div>
+    <div class="panel" id="seat3" style="left:60px; top:340px; width:460px; height:440px"></div>
+    <div class="panel" id="note3" style="left:560px; top:340px; width:460px; height:440px"></div>
+    <div class="abs center" style="top:830px; font-size:28px; color:var(--muted)" id="cap3">Every bot is modelled on how its firm makes money.</div>
+  </section>
+
+  <!-- ============ Scene 4: the maths ============ -->
+  <section class="scene" id="s4">
+    <div class="abs center title" style="top:80px"><span class="word" id="t4a">You get</span> <span class="word red" id="t4b">the maths.</span></div>
+    <div class="felt" id="felt4" style="left:60px; top:200px; width:960px; height:320px">
+      <div class="abs mono" id="street4" style="left:0; right:0; top:28px; text-align:center; font-size:16px; letter-spacing:.14em; color:var(--faint)">FLOP</div>
+      <div id="slots4"></div>
+      <div id="board4"></div>
+      <div class="abs mono" id="pot4" style="left:0; right:0; top:246px; text-align:center; font-size:26px">Pot $19</div>
+      <div class="abs banner" id="banner4" style="left:0; right:0; top:240px; text-align:center">You win $26 with two pair</div>
+    </div>
+    <div class="panel" id="me4" style="left:60px; top:560px; width:960px; height:380px">
+      <div id="hole4"></div>
+      <div class="abs" style="left:300px; top:38px">
+        <div style="font-size:30px; font-weight:600">You</div>
+        <div class="mono" style="font-size:30px; margin-top:4px" id="stack4">$193</div>
+      </div>
+      <div class="abs maths" style="left:300px; top:142px" id="hand4">Hand <b id="handname4">Pair of aces</b></div>
+      <div class="abs" style="left:640px; top:34px; text-align:right; width:280px" id="eqbox4">
+        <div class="maths" id="eqlab4">Win chance</div>
+        <div class="big-num" id="eq4">0%</div>
+        <div class="maths" style="margin-top:10px" id="odds4">Pot odds <b>22%</b></div>
+      </div>
+      <div class="btn" id="bFold" style="left:40px; top:264px; width:280px">Fold</div>
+      <div class="btn" id="bCall" style="left:340px; top:264px; width:280px">Call $7</div>
+      <div class="btn red" id="bRaise" style="left:640px; top:264px; width:280px">Raise to $21</div>
+    </div>
+    <svg id="cursor4" class="abs" width="44" height="44" viewBox="0 0 24 24" style="left:0; top:0">
+      <path d="M4 2 L4 20 L9 15 L12.5 22 L15.5 20.6 L12 13.8 L19 13.8 Z" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/>
+    </svg>
+  </section>
+
+  <!-- ============ Scene 5: logo reveal ============ -->
+  <section class="scene" id="s5">
+    <svg id="mark5" class="abs" style="left:430px; top:150px" width="220" height="220" viewBox="0 0 64 64"></svg>
+    <div class="abs center" style="top:410px; font-size:118px; font-weight:600; letter-spacing:-0.045em" id="name5"></div>
+    <div class="abs center" style="top:560px; font-size:36px; color:var(--muted)" id="tag5">Can you beat Wall Street at poker?</div>
+    <div class="abs center" style="top:650px" id="pills5">
+      <span class="pill" id="p0">Free</span><span class="pill" id="p1">Play money</span><span class="pill" id="p2">No sign-up</span>
+    </div>
+    <div class="abs center" style="top:770px"><span class="url" id="url5">poker-finance.vercel.app</span></div>
+    <div class="abs center mono" style="top:930px; font-size:24px; color:var(--muted)" id="credit5">A DMU Quant Society project · dmu/quant<span class="red">_</span></div>
+  </section>
+
+  <!-- Persistent corner marks -->
+  <div class="abs mono" id="wmL" style="left:40px; top:34px; font-size:18px; color:var(--muted)">dmu/quant<span class="red">_</span></div>
+  <div class="abs mono" id="wmR" style="right:40px; top:34px; font-size:18px; color:var(--muted); letter-spacing:.12em">POKER FINANCE</div>
+</div>
+
+<script>
+'use strict';
+const DURATION = 30;
+const W = 1080;
+const $ = (id) => document.getElementById(id);
+
+// ---------- easing ----------
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+const prog = (t, start, dur) => clamp01((t - start) / dur);
+// Spring with a small overshoot (~8%), settles by x = 1.
+const spring = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : 1 - Math.exp(-7 * x) * Math.cos(9 * x));
+const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const out = (x) => 1 - Math.pow(1 - x, 3);
+const lerp = (a, b, x) => a + (b - a) * x;
+
+function style(el, { x = 0, y = 0, s = 1, o = 1, blur = 0, rot = 0 } = {}) {
+  el.style.transform = `translate(${x}px, ${y}px) scale(${s}) rotate(${rot}deg)`;
+  el.style.opacity = o;
+  el.style.filter = blur > 0.05 ? `blur(${blur}px)` : 'none';
+}
+/** Word or element popping in: rises 50px, springs into place. */
+function pop(el, t, start, dist = 50) {
+  const p = spring(prog(t, start, 0.7));
+  style(el, { y: (1 - p) * dist, o: clamp01(prog(t, start, 0.25)), s: lerp(0.94, 1, p) });
+}
+/** Short blur swap for content changing inside the same panel. */
+function swapIn(el, t, start, end) {
+  const i = prog(t, start, 0.3);
+  const o = end === undefined ? 0 : prog(t, end - 0.3, 0.3);
+  const vis = i * (1 - o);
+  style(el, { o: vis, blur: (1 - vis) * 10, y: (1 - i) * 18 - o * 18 });
+}
+
+// ---------- Signal mark ----------
+function buildMark(svg) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const ticks = [];
+  for (let i = 0; i < 12; i++) {
+    if (i === 4) continue;
+    const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', 32 + Math.cos(a) * 14); l.setAttribute('y1', 32 + Math.sin(a) * 14);
+    l.setAttribute('x2', 32 + Math.cos(a) * 20); l.setAttribute('y2', 32 + Math.sin(a) * 20);
+    l.setAttribute('stroke', '#f2f2f0'); l.setAttribute('stroke-width', '3'); l.setAttribute('stroke-linecap', 'round');
+    l.style.transformOrigin = '32px 32px';
+    svg.appendChild(l); ticks.push(l);
+  }
+  const tail = document.createElementNS(NS, 'line');
+  tail.setAttribute('x1', 40); tail.setAttribute('y1', 40); tail.setAttribute('x2', 54); tail.setAttribute('y2', 54);
+  tail.setAttribute('stroke', '#ff3b2f'); tail.setAttribute('stroke-width', '5'); tail.setAttribute('stroke-linecap', 'round');
+  tail.setAttribute('stroke-dasharray', '20'); svg.appendChild(tail);
+  return { ticks, tail };
+}
+function drawMark(mark, t, start, step, tailAt) {
+  mark.ticks.forEach((l, i) => {
+    const p = spring(prog(t, start + i * step, 0.5));
+    l.style.opacity = clamp01(prog(t, start + i * step, 0.15));
+    l.style.transform = `scale(${lerp(0.4, 1, p)})`;
+  });
+  mark.tail.setAttribute('stroke-dashoffset', 20 * (1 - out(prog(t, tailAt, 0.4))));
+}
+const mark1 = buildMark($('mark1'));
+const mark5 = buildMark($('mark5'));
+
+// ---------- data ----------
+const ARCH = [
+  { id: 'mm', name: 'Market makers', tag: 'Tight spreads', color: 'var(--mm)' },
+  { id: 'quant', name: 'Quant funds', tag: 'Pure expected value', color: 'var(--quant)' },
+  { id: 'macro', name: 'Macro funds', tag: 'Big conviction', color: 'var(--macro)' },
+  { id: 'pod', name: 'Pod shops', tag: 'Hard stop-loss', color: 'var(--pod)' },
+  { id: 'trend', name: 'Trend followers', tag: 'Momentum', color: 'var(--trend)' },
+  { id: 'bank', name: 'Banks', tag: 'Capital limits', color: 'var(--bank)' },
+];
+const FIRMS = [
+  ['Citadel Securities', 'mm'], ['Goldman Sachs', 'bank'], ['Renaissance', 'quant'], ['Jane Street', 'mm'],
+  ['Bridgewater', 'macro'], ['Millennium', 'pod'], ['JPMorgan', 'bank'], ['Optiver', 'mm'], ['Two Sigma', 'quant'],
+  ['Man AHL', 'trend'], ['IMC', 'mm'], ['Morgan Stanley', 'bank'], ['Citadel', 'pod'], ['SIG', 'mm'],
+  ['D. E. Shaw', 'quant'], ['Brevan Howard', 'macro'], ['Virtu', 'mm'], ['Barclays', 'bank'], ['Winton', 'trend'],
+  ['Point72', 'pod'], ['Flow Traders', 'mm'], ['HSBC', 'bank'], ['AQR', 'quant'], ['Hudson River Trading', 'mm'],
+  ['Tudor', 'macro'], ['Deutsche Bank', 'bank'], ['Aspect', 'trend'], ['Balyasny', 'pod'], ['Jump Trading', 'mm'],
+  ['UBS', 'bank'], ['QRT', 'quant'], ['Tower Research', 'mm'], ['Rokos', 'macro'], ['ExodusPoint', 'pod'],
+  ['BNP Paribas', 'bank'], ['Lynx', 'trend'], ['XTX Markets', 'mm'],
+];
+const archIndex = (id) => ARCH.findIndex((a) => a.id === id);
+
+// ---------- Scene 2 build ----------
+const chipEls = FIRMS.map(([name, a]) => {
+  const el = document.createElement('div');
+  el.className = 'chip';
+  el.innerHTML = `<span class="dot" style="background:${ARCH[archIndex(a)].color}"></span>${name}`;
+  $('chips').appendChild(el);
+  return el;
+});
+const tileEls = ARCH.map((a, i) => {
+  const el = document.createElement('div');
+  el.className = 'tile';
+  const col = i % 3, row = Math.floor(i / 3);
+  el.style.left = 60 + col * 330 + 'px';
+  el.style.top = 330 + row * 260 + 'px';
+  el.innerHTML = `<div class="tile-name"><span class="dot" style="background:${a.color}"></span>${a.name}</div>
+    <div class="tile-tag">${a.tag}</div><div class="tile-count" id="cnt${i}">0</div>`;
+  $('tiles').appendChild(el);
+  return el;
+});
+let chipLayout = null;
+function layoutChips() {
+  // Wrap chips into centred rows, measured with the real font.
+  const maxW = 980, gapX = 12, gapY = 16, top = 330;
+  const rows = []; let row = [], rowW = 0;
+  chipEls.forEach((el, i) => {
+    const w = el.offsetWidth;
+    if (row.length && rowW + gapX + w > maxW) { rows.push({ row, rowW }); row = []; rowW = 0; }
+    rowW += (row.length ? gapX : 0) + w; row.push(i);
+  });
+  rows.push({ row, rowW });
+  const pos = [];
+  rows.forEach(({ row, rowW }, r) => {
+    let x = (W - rowW) / 2;
+    row.forEach((i) => {
+      pos[i] = { x, y: top + r * (chipEls[i].offsetHeight + gapY), w: chipEls[i].offsetWidth, h: chipEls[i].offsetHeight };
+      x += chipEls[i].offsetWidth + gapX;
+    });
+  });
+  chipLayout = pos;
+}
+
+// ---------- Scene 3 build ----------
+const PLAYS = [
+  {
+    firm: 'Optiver', arch: 0, stack: '$214', dials: [0.62, 0.45, 0.7], action: 'Raise to $6', kind: 'raise',
+    concept: 'Earning the spread',
+    note: 'Lots of hands, small raises. Market makers win on volume, not big bets, and back off when someone pushes hard.',
+  },
+  {
+    firm: 'Millennium', arch: 3, stack: '$150  ▼25%', dials: [0.19, 0.38, 0.4], action: 'Fold', kind: 'fold',
+    concept: 'Drawdown limits',
+    note: 'Down 25% from its peak, it tightens up and stops bluffing, like a pod that just hit its risk limit.',
+  },
+  {
+    firm: 'Renaissance', arch: 1, stack: '$268', dials: [0.45, 0.6, 0.2], action: 'Raise to $38', kind: 'raise',
+    concept: 'Kelly criterion',
+    note: 'Bet size scales with its edge, never more than the maths justifies. It also learns your habits as you play.',
+  },
+];
+const DIAL_NAMES = ['Hands played', 'Aggression', 'Folds to pressure'];
+const seatSwaps = PLAYS.map((p) => {
+  const el = document.createElement('div');
+  el.className = 'swap';
+  const a = ARCH[p.arch];
+  el.innerHTML = `<div class="firm">${p.firm}</div>
+    <div class="arch"><span class="dot" style="background:${a.color}"></span>${a.name} · ${a.tag}</div>
+    <div class="stack">${p.stack}</div>
+    <div class="dials">${DIAL_NAMES.map((d) => `<div class="dial">${d}<div class="bar"><span></span></div></div>`).join('')}</div>
+    <div class="action ${p.kind}">${p.action}</div>`;
+  $('seat3').appendChild(el);
+  return el;
+});
+const noteSwaps = PLAYS.map((p) => {
+  const el = document.createElement('div');
+  el.className = 'swap';
+  const a = ARCH[p.arch];
+  el.innerHTML = `<div class="note"><div class="concept">${p.concept}</div>
+    <div class="note-firm"><span class="dot" style="background:${a.color}"></span>${p.firm}</div>
+    <div class="note-text">${p.note}</div></div>`;
+  $('note3').appendChild(el);
+  return el;
+});
+
+// ---------- Scene 4 build ----------
+function cardEl(rank, suit, red) {
+  const el = document.createElement('div');
+  el.className = 'card' + (red ? ' r' : '');
+  el.innerHTML = `<div class="rk">${rank}</div><div class="st">${suit}</div>`;
+  return el;
+}
+const BOARD = [['A', '♣', 0], ['6', '♦', 1], ['3', '♦', 1], ['7', '♠', 0], ['3', '♠', 0]];
+const boardX = (i) => 480 - (5 * 100 + 4 * 16) / 2 + i * 116;
+BOARD.forEach((_, i) => {
+  const s = document.createElement('div');
+  s.className = 'slot'; s.style.left = boardX(i) + 'px'; s.style.top = '72px';
+  $('slots4').appendChild(s);
+});
+const boardEls = BOARD.map(([r, s, red], i) => {
+  const el = cardEl(r, s, red);
+  el.style.left = boardX(i) + 'px'; el.style.top = '72px';
+  $('board4').appendChild(el);
+  return el;
+});
+const holeEls = [['A', '♦', 1], ['2', '♥', 1]].map(([r, s, red], i) => {
+  const el = cardEl(r, s, red);
+  el.style.width = '112px'; el.style.height = '156px';
+  el.style.left = 36 + i * 126 + 'px'; el.style.top = '40px';
+  $('hole4').appendChild(el);
+  return el;
+});
+const CALL_POS = { x: 60 + 340 + 200, y: 560 + 264 + 46 }; // centre-right of the Call button in stage coords
+
+// ---------- timeline ----------
+// Scene windows: [enter, exit]. Transitions are camera pans, not crossfades.
+const T = {
+  s1: [0, 4.6], s2: [4.6, 11.2], s3: [11.2, 19.6], s4: [19.6, 25.6], s5: [25.6, 30],
+};
+const PAN = 0.7;
+
+function sceneOffset(t, [enter, exit], axis, first, last) {
+  // Returns {x, y} offset: incoming slides from +W, outgoing slides to -W.
+  let off = 0;
+  if (!first) off = W * (1 - inOut(prog(t, enter - PAN / 2, PAN)));
+  if (!last && t > exit - PAN / 2) off = -W * inOut(prog(t, exit - PAN / 2, PAN));
+  return axis === 'y' ? { x: 0, y: off } : { x: off, y: 0 };
+}
+
+function seek(t) {
+  if (!chipLayout) layoutChips();
+
+  // ----- cameras -----
+  const o1 = sceneOffset(t, T.s1, 'y', true, false);
+  const o2 = sceneOffset(t, T.s2, t < 8 ? 'y' : 'x', false, false);
+  const o3 = sceneOffset(t, T.s3, 'x', false, false);
+  const o4 = sceneOffset(t, T.s4, 'x', false, false);
+  const o5 = sceneOffset(t, T.s5, 'x', false, true);
+  [['s1', o1], ['s2', o2], ['s3', o3], ['s4', o4], ['s5', o5]].forEach(([id, o]) => {
+    const el = $(id);
+    el.style.transform = `translate(${o.x}px, ${o.y}px)`;
+    el.style.visibility = Math.abs(o.x) >= W || Math.abs(o.y) >= W ? 'hidden' : 'visible';
+  });
+  const wm = clamp01(prog(t, 5.0, 0.5)) * (1 - prog(t, 25.3, 0.4));
+  $('wmL').style.opacity = wm; $('wmR').style.opacity = wm;
+
+  // ----- Scene 1: hook -----
+  drawMark(mark1, t, 0.15, 0.07, 1.05);
+  const handle = 'dmu/quant';
+  $('handle1').textContent = handle.slice(0, Math.round(prog(t, 1.2, 0.6) * handle.length));
+  $('cursor1').style.opacity = t < 1.2 || Math.floor(t * 2.2) % 2 === 0 ? 1 : 0;
+  [1.9, 2.15, 2.4, 2.8, 3.3].forEach((st, i) => pop($('w' + i), t, st, 60));
+
+  // ----- Scene 2: opponents -----
+  pop($('t2a'), t, 5.0); pop($('t2b'), t, 5.35);
+  const gather = 8.4;
+  const counts = new Array(6).fill(0);
+  chipEls.forEach((el, i) => {
+    const p0 = chipLayout[i];
+    const appear = spring(prog(t, 5.7 + i * 0.055, 0.6));
+    const a = archIndex(FIRMS[i][1]);
+    const tile = tileEls[a];
+    const tx = parseFloat(tile.style.left) + 150 - p0.w / 2;
+    const ty = parseFloat(tile.style.top) + 150 - p0.h / 2;
+    const m = inOut(prog(t, gather + i * 0.022, 0.7));
+    if (m > 0.85) counts[a]++;
+    el.style.transform = `translate(${lerp(p0.x, tx, m)}px, ${lerp(p0.y, ty, m) + (1 - appear) * 30}px) scale(${lerp(lerp(0.8, 1, appear), 0.35, m)})`;
+    el.style.opacity = clamp01(prog(t, 5.7 + i * 0.055, 0.2)) * (1 - prog(t, gather + i * 0.022 + 0.45, 0.25));
+  });
+  pop($('cap2'), t, 9.6, 20);
+  tileEls.forEach((el, i) => {
+    const p = spring(prog(t, 8.15 + i * 0.07, 0.7));
+    style(el, { y: (1 - p) * 40, s: lerp(0.9, 1, p), o: clamp01(prog(t, 8.15 + i * 0.07, 0.25)) });
+    const c = $('cnt' + i);
+    c.textContent = counts[i];
+    const total = FIRMS.filter(([, a]) => archIndex(a) === i).length;
+    c.style.color = counts[i] === total && t > gather + 1 ? 'var(--text)' : 'var(--muted)';
+  });
+
+  // ----- Scene 3: plays -----
+  pop($('t3a'), t, 11.4); pop($('t3b'), t, 11.7);
+  pop($('lab3a'), t, 11.9, 20); pop($('lab3b'), t, 12.0, 20);
+  pop($('seat3'), t, 11.95, 40); pop($('note3'), t, 12.05, 40);
+  pop($('cap3'), t, 12.3, 20);
+  const cycles = [12.5, 14.9, 17.2];
+  PLAYS.forEach((p, k) => {
+    const cs = cycles[k];
+    const ce = k < 2 ? cycles[k + 1] : undefined;
+    swapIn(seatSwaps[k], t, cs, ce);
+    seatSwaps[k].querySelectorAll('.bar span').forEach((b, j) => {
+      b.style.width = p.dials[j] * 100 * out(prog(t, cs + 0.25 + j * 0.08, 0.6)) + '%';
+    });
+    const act = seatSwaps[k].querySelector('.action');
+    const ap = spring(prog(t, cs + 0.85, 0.6));
+    style(act, { s: lerp(0.6, 1, ap), o: clamp01(prog(t, cs + 0.85, 0.15)) });
+    swapIn(noteSwaps[k], t, cs + 1.1, ce);
+  });
+
+  // ----- Scene 4: maths -----
+  pop($('t4a'), t, 19.8); pop($('t4b'), t, 20.05);
+  holeEls.forEach((el, i) => {
+    const p = spring(prog(t, 20.2 + i * 0.12, 0.6));
+    style(el, { y: (1 - p) * -40, rot: (1 - p) * (i ? 8 : -8), o: clamp01(prog(t, 20.2 + i * 0.12, 0.15)) });
+  });
+  const deal = [20.45, 20.6, 20.75, 23.55, 24.0];
+  boardEls.forEach((el, i) => {
+    const p = spring(prog(t, deal[i], 0.55));
+    style(el, { y: (1 - p) * -36, s: lerp(0.85, 1, p), o: clamp01(prog(t, deal[i], 0.12)) });
+  });
+  $('street4').textContent = t < deal[3] ? 'FLOP' : t < deal[4] ? 'TURN' : t < 24.4 ? 'RIVER' : 'SHOWDOWN';
+  $('handname4').textContent = t < 24.2 ? 'Pair of aces' : 'Two pair, aces and threes';
+  pop($('hand4'), t, 20.95, 16);
+  const eqVal = Math.round(61 * out(prog(t, 21.15, 1.0)));
+  $('eq4').textContent = t < 24.45 ? eqVal + '%' : '+$19';
+  $('eqlab4').textContent = t < 24.45 ? 'Win chance' : 'Profit this hand';
+  pop($('eqbox4'), t, 21.05, 16);
+  pop($('odds4'), t, 21.7, 12);
+  ['bFold', 'bCall', 'bRaise'].forEach((id, i) => pop($(id), t, 21.9 + i * 0.07, 20));
+  // Cursor: enters, glides to Call, clicks.
+  const cur = $('cursor4');
+  const cm = inOut(prog(t, 22.35, 0.75));
+  const cx = lerp(980, CALL_POS.x, cm), cy = lerp(1060, CALL_POS.y, cm);
+  const click = prog(t, 23.15, 0.18);
+  const press = click > 0 && click < 1 ? Math.sin(click * Math.PI) : 0;
+  cur.style.transform = `translate(${cx}px, ${cy}px) scale(${1 - press * 0.15})`;
+  cur.style.opacity = clamp01(prog(t, 22.3, 0.2)) * (1 - prog(t, 24.0, 0.3));
+  const call = $('bCall');
+  if (t > 23.15) {
+    call.style.background = t < 23.6 ? '#f2f2f0' : 'var(--surface-2)';
+    call.style.color = t < 23.6 ? '#0b0b0c' : 'var(--text)';
+    call.style.transform = `scale(${1 - press * 0.04})`;
+  } else { call.style.background = ''; call.style.color = ''; }
+  $('pot4').textContent = t < 23.3 ? 'Pot $19' : 'Pot $26';
+  $('pot4').style.opacity = 1 - prog(t, 24.3, 0.2);
+  pop($('banner4'), t, 24.45, 24);
+  $('banner4').style.opacity = clamp01(prog(t, 24.45, 0.2));
+  $('stack4').textContent = t < 23.3 ? '$193' : t < 24.6 ? '$186' : '$212';
+  const winGlow = prog(t, 24.45, 0.2);
+  $('me4').style.borderColor = winGlow > 0 ? 'var(--red)' : 'var(--line)';
+  $('felt4').style.borderColor = winGlow > 0 ? 'var(--red)' : 'var(--line)';
+
+  // ----- Scene 5: logo -----
+  drawMark(mark5, t, 25.95, 0.045, 26.5);
+  const name = 'Poker Finance';
+  const nameEl = $('name5');
+  if (!nameEl.childElementCount) {
+    name.split('').forEach((ch) => {
+      const s = document.createElement('span'); s.className = 'word';
+      s.textContent = ch === ' ' ? ' ' : ch; nameEl.appendChild(s);
+    });
+  }
+  [...nameEl.children].forEach((s, i) => pop(s, t, 26.55 + i * 0.035, 70));
+  pop($('tag5'), t, 27.35, 24);
+  ['p0', 'p1', 'p2'].forEach((id, i) => pop($(id), t, 27.8 + i * 0.12, 24));
+  pop($('url5'), t, 28.3, 30);
+  pop($('credit5'), t, 28.7, 16);
+}
+
+// Sound cues (seconds + type) for the renderer: one soft sound per element that appears.
+const SFX = [
+  ...[0.15, 0.36, 0.57].map((t) => ({ t, type: 'tick' })),
+  { t: 1.05, type: 'swish' },
+  ...[1.9, 2.15, 2.4, 2.8].map((t) => ({ t, type: 'pop' })),
+  { t: 3.3, type: 'hit' },
+  { t: 4.25, type: 'whoosh' },
+  { t: 5.0, type: 'pop' }, { t: 5.35, type: 'pop' },
+  ...Array.from({ length: 13 }, (_, i) => ({ t: 5.7 + i * 0.165, type: 'tick' })),
+  { t: 8.15, type: 'swish' },
+  ...[8.75, 9.1, 9.4].map((t) => ({ t, type: 'tick' })),
+  { t: 10.85, type: 'whoosh' },
+  { t: 11.4, type: 'pop' }, { t: 11.7, type: 'pop' }, { t: 12.0, type: 'swish' },
+  ...[12.5, 14.9, 17.2].flatMap((c) => [{ t: c + 0.85, type: 'chip' }, { t: c + 1.1, type: 'tick' }]),
+  { t: 19.25, type: 'whoosh' },
+  { t: 19.8, type: 'pop' }, { t: 20.05, type: 'pop' },
+  { t: 20.2, type: 'card' }, { t: 20.32, type: 'card' },
+  { t: 20.45, type: 'card' }, { t: 20.6, type: 'card' }, { t: 20.75, type: 'card' },
+  { t: 23.15, type: 'click' }, { t: 23.3, type: 'chip' },
+  { t: 23.55, type: 'card' }, { t: 24.0, type: 'card' },
+  { t: 24.45, type: 'win' },
+  { t: 25.25, type: 'whoosh' },
+  { t: 26.5, type: 'swish' },
+  { t: 26.55, type: 'hit' },
+  ...[27.8, 27.92, 28.04].map((t) => ({ t, type: 'tick' })),
+  { t: 28.3, type: 'chime' },
+];
+
+window.seek = seek;
+window.DURATION = DURATION;
+window.SFX = SFX;
+
+// Preview mode: play in a loop unless the renderer is driving.
+if (location.hash !== '#render') {
+  document.fonts.ready.then(() => {
+    const t0 = performance.now();
+    const loop = (now) => { seek(((now - t0) / 1000) % DURATION); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  });
+}
+</script>
+</body>
+</html>
