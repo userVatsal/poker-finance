@@ -43,6 +43,6 @@ python3 video/render.py --silent   # no sound effects
 | URL on the end card                    | `#url5`                                                                              |
 | Sounds                                 | `SFX` cue list (types: tick, pop, hit, swish, whoosh, chip, card, click, win, chime) |
 
-If the live URL changes from `poker-finance.vercel.app`, update `#url5` and re-render.
+If the live URL changes from `dmu-poker-finance.vercel.app`, update `#url5` and re-render.
 
 Fonts (Inter Tight, JetBrains Mono) are bundled in `video/fonts/` under the SIL Open Font License, so renders look identical on any machine.

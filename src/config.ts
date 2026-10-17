@@ -19,7 +19,7 @@ export const CONFIG = {
   AUTO_NEXT_HAND_MS: 0,
 
   /** Public URL used for sharing. Update after connecting a custom domain in Vercel. */
-  SITE_URL: 'https://poker-finance.vercel.app',
+  SITE_URL: 'https://dmu-poker-finance.vercel.app',
 
   SOCIETY_NAME: 'DMU Quant Society',
   SOCIETY_HANDLE: 'dmu/quant_',

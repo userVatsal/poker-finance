@@ -11,12 +11,17 @@ The game is a static site. Vercel builds it from GitHub on every push.
    - Build command: `npm run build`
    - Output directory: `dist`
    - Node version: 22 (Project Settings → General)
-4. Click **Deploy**. After about a minute you get a URL like `poker-finance.vercel.app`.
+4. Click **Deploy**.
+5. **Claim the public address.** Vercel → poker-finance → **Settings → Domains → Add** → type `dmu-poker-finance.vercel.app` → **Add**. This is the address every link in the repo, the LinkedIn preview card and the intro video point to.
 
-If Vercel gives a different URL (for example because the name is taken), update it in two places, then push:
+> Do not use `poker-finance.vercel.app`: it belongs to a different, unrelated project. The automatic team address (`poker-finance-vatsal-pareshkumars-projects.vercel.app`) is behind Vercel's login wall, so the public can't open it.
 
-- `SITE_URL` in `src/config.ts` (used for LinkedIn sharing)
-- The `og:image` and `og:url` tags in `index.html` (used for the LinkedIn preview card)
+If `dmu-poker-finance.vercel.app` is ever unavailable, pick another name and update it in these places, then push:
+
+- `SITE_URL` in `src/config.ts` (LinkedIn sharing)
+- The `og:image` and `og:url` tags in `index.html` (LinkedIn preview card)
+- The "Play now" link in `README.md`
+- `#url5` in `video/intro.html`, then re-render the video
 
 ## How deploys work
 

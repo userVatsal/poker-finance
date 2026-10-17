@@ -10,7 +10,7 @@ Texas Hold'em against 37 banks, HFTs and hedge funds. Every bot plays poker the 
 
 A DMU Quant Society project · De Montfort University, Leicester
 
-[Play now](https://poker-finance.vercel.app) · [How the bots think](docs/bot-strategies.md) · [Roadmap](docs/roadmap.md) · [Contribute](CONTRIBUTING.md)
+[Play now](https://dmu-poker-finance.vercel.app) · [How the bots think](docs/bot-strategies.md) · [Roadmap](docs/roadmap.md) · [Contribute](CONTRIBUTING.md)
 
 ![Poker Finance preview](public/og-image.png)
 
