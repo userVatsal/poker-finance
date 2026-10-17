@@ -1,0 +1,618 @@
+<!doctype html>
+<!--
+  dmuquant · Episode 01 — "Is AI a bubble? Follow the debt."   1920 × 1080 long-form.
+
+  Every frame is a pure function of time: seek(t) draws the whole picture for second t.
+  Visual beats are tied to words in the narration, so the picture lands exactly when the voice says it.
+
+  - Before voice.py has run, timings are estimated from word counts (good enough to preview).
+  - After voice.py has run, timeline.js holds the real ElevenLabs timings and everything locks to the voice.
+
+  Preview: open this file in Chrome (space = play/pause, ←/→ = 5 s, 1–9 = jump to scene).
+  Render:  python3 video/ep01-ai-bubble/render.py
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ep 01 — Is AI a bubble?</title>
+<style>
+@font-face { font-family: 'Inter Tight'; font-weight: 400; src: url(fonts/inter-tight-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter Tight'; font-weight: 500; src: url(fonts/inter-tight-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter Tight'; font-weight: 600; src: url(fonts/inter-tight-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 400; src: url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 500; src: url(fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 700; src: url(fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2'); }
+
+:root {
+  --bg: #0e0e0c; --surface: #141416; --surface-2: #1a1a1d; --surface-3: #232327;
+  --line: #2a2a2f; --line-strong: #3a3a40; --text: #f2f0eb; --muted: #a3a39e; --faint: #6e6e6a;
+  --red: #e5251b; --green: #5fd6a4;
+  --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+html, body { margin: 0; background: #000; }
+body { display: grid; place-items: center; min-height: 100vh; }
+body.fit #stage { transform-origin: center; }
+#stage {
+  position: relative; width: 1920px; height: 1080px; overflow: hidden;
+  background: var(--bg); color: var(--text); font-family: var(--sans);
+  -webkit-font-smoothing: antialiased; font-feature-settings: 'tnum' 1;
+}
+#grid { position: absolute; inset: 0;
+  background-image: radial-gradient(#1c1c1f 1.6px, transparent 2px); background-size: 32px 32px; }
+#vignette { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%); }
+#grain { position: absolute; inset: -50%; opacity: 0.05; pointer-events: none; mix-blend-mode: screen; }
+#world { position: absolute; inset: 0; }
+.scene { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.a { position: absolute; }
+.mono { font-family: var(--mono); }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.red { color: var(--red); }
+.green { color: var(--green); }
+.c { left: 0; right: 0; text-align: center; }
+.lab { font-family: var(--mono); font-size: 24px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.h0 { font-size: 200px; font-weight: 600; letter-spacing: -0.045em; line-height: 0.95; }
+.h1 { font-size: 132px; font-weight: 600; letter-spacing: -0.04em; line-height: 1.0; }
+.h2 { font-size: 88px; font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; }
+.h3 { font-size: 60px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.12; }
+.h4 { font-size: 40px; font-weight: 500; letter-spacing: -0.015em; line-height: 1.25; }
+.card { position: absolute; background: var(--surface); border: 1.5px solid var(--line); border-radius: 22px; box-sizing: border-box; }
+.pill { display: inline-block; padding: 10px 22px; border-radius: 999px; font-family: var(--mono); font-size: 26px; font-weight: 500; letter-spacing: 0.06em; }
+.strike { position: absolute; left: -2%; top: 52%; height: 10px; background: var(--red); border-radius: 5px; }
+.arrow { position: absolute; height: 3px; background: var(--line-strong); }
+.arrow::after { content: ''; position: absolute; right: -2px; top: -8px; border-left: 16px solid var(--line-strong); border-top: 9.5px solid transparent; border-bottom: 9.5px solid transparent; }
+.arrow.red { background: var(--red); }
+.arrow.red::after { border-left-color: var(--red); }
+
+/* HUD */
+#hud { position: absolute; inset: 0; pointer-events: none; }
+#chapter { position: absolute; left: 72px; top: 56px; display: flex; align-items: center; gap: 16px; font-family: var(--mono); font-size: 22px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+#chapter i { width: 12px; height: 12px; background: var(--red); display: inline-block; }
+#brand { position: absolute; right: 72px; bottom: 52px; font-family: var(--mono); font-size: 26px; color: var(--muted); }
+#brand b { display: inline-block; width: 14px; height: 26px; background: var(--red); vertical-align: -4px; margin-left: 3px; }
+#source { position: absolute; left: 72px; bottom: 56px; font-family: var(--mono); font-size: 19px; letter-spacing: 0.06em; color: var(--faint); text-transform: uppercase; }
+#progress { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--red); }
+
+#controls { position: fixed; left: 12px; bottom: 10px; color: #666; font: 12px var(--mono); }
+body.render #controls { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grid"></div>
+  <svg id="grain" width="200%" height="200%"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+  <div id="world"></div>
+  <div id="vignette"></div>
+  <div id="hud">
+    <div id="chapter"></div>
+    <div id="source"></div>
+    <div id="brand">dmu/quant<b></b></div>
+    <div id="progress"></div>
+  </div>
+</div>
+<div id="controls">space play/pause · ←/→ 5s · 1–9 scenes · <span id="clock"></span></div>
+
+<script src="scenes.js"></script>
+<script src="timeline.js" onerror="window.TIMELINE = null"></script>
+<script>
+// ------------------------------------------------------------------ helpers
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const E = {
+  lin: (t) => t,
+  out: (t) => 1 - Math.pow(1 - t, 3),
+  inout: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  spring: (t) => (t >= 1 ? 1 : 1 - Math.exp(-7 * t) * Math.cos(11 * t)),
+};
+// progress of an animation that starts at t0 and lasts d seconds
+const P = (lt, t0, d = 0.7, e = E.out) => e(clamp((lt - t0) / d));
+const rise = (p, y = 36) => `opacity:${clamp(p)};transform:translateY(${(1 - p) * y}px)`;
+const pop = (p) => `opacity:${clamp(p * 1.6)};transform:scale(${0.86 + 0.14 * p})`;
+const fmt = (v, dec = 0) => v.toLocaleString('en-GB', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const BREAK = /<break\s+time="([\d.]+)s"\s*\/>/g;
+const plain = (s) => s.replace(BREAK, ' ').replace(/\s+/g, ' ').trim();
+
+function signal(size, p, tailP = p) {
+  // DMU Quant Society "Signal" mark: radial ticks + red tail forming a Q.
+  const angles = [0, 15, 30, 45, 60, 75, 90, 105, 120, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345];
+  const n = Math.floor(clamp(p) * angles.length + 0.0001);
+  let r = '';
+  for (let i = 0; i < n; i++) r += `<rect x="191" y="62" width="18" height="53" transform="rotate(${angles[i]} 200 200)"/>`;
+  const tail = clamp(tailP);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 400 400"><g fill="#f2f0eb">${r}</g>
+    <rect x="188.7" y="263.6" width="22.6" height="${109.6 * tail}" fill="#e5251b" transform="rotate(-45 200 200)"/></svg>`;
+}
+
+// ------------------------------------------------------------------ timeline
+const WPS = 2.5; // words per second when estimating without real audio
+const PRE_ROLL = 0.9, GAP = 0.55, TAIL = 1.5;
+let TL;
+(function build() {
+  if (window.TIMELINE) {
+    TL = { duration: TIMELINE.duration, real: true, scenes: TIMELINE.scenes.map((s) => {
+      const src = SCENES.find((x) => x.id === s.id);
+      return { ...s, plain: plain(src.text) };
+    }) };
+    return;
+  }
+  let t = PRE_ROLL;
+  const scenes = SCENES.map((s) => {
+    let br = 0; s.text.replace(BREAK, (m, x) => { br += +x; });
+    const p = plain(s.text);
+    const dur = p.split(' ').length / WPS + br;
+    const out = { id: s.id, chapter: s.chapter, start: t, dur, hold: s.hold || 0, plain: p, t: null };
+    t += dur + GAP + (s.hold || 0);
+    return out;
+  });
+  TL = { duration: t - GAP + TAIL, real: false, scenes };
+})();
+
+function beatFn(sc) {
+  return (phrase, nth = 1) => {
+    const q = phrase.toLowerCase();
+    const find = (txt) => { let i = -1; for (let k = 0; k < nth; k++) { i = txt.indexOf(q, i + 1); if (i < 0) break; } return i; };
+    if (sc.t) {
+      const i = find(sc.text.toLowerCase());
+      if (i >= 0) return sc.t[i];
+    }
+    const txt = sc.plain.toLowerCase();
+    const i = find(txt);
+    if (i < 0) { console.warn('beat not found', sc.id, phrase); return 0; }
+    return (i / txt.length) * sc.dur;
+  };
+}
+
+// ------------------------------------------------------------------ scenes
+// Each returns HTML for local time lt (seconds since the scene's first word).
+const R = {};
+const SRC = {};
+
+// 01 · Cold open
+SRC.s01 = 'Source: TheStreet, market close 16 Oct 2026';
+R.s01 = (lt, B) => {
+  const d = 'FRIDAY · 16 OCTOBER 2026';
+  const n = Math.floor(clamp((lt + 0.2) / 1.3) * d.length);
+  const cursor = Math.floor(lt * 2) % 2 === 0 ? '<span style="color:var(--red)">▍</span>' : '<span style="opacity:0">▍</span>';
+  const tiles = [
+    ['NASDAQ', -2.14, '26,140.03', B('Nasdaq')],
+    ['S&amp;P 500', -1.09, '7,659.44', B('S&P')],
+    ['RUSSELL 2000', -1.72, '2,719.57', B('Small companies')],
+    ['DOW JONES', -0.34, '52,002.41', B('Small companies') + 0.55],
+  ];
+  const dim = 1 - 0.7 * P(lt, B('different') - 0.5, 0.9);
+  const W = 360, G = 36, x0 = (1920 - (4 * W + 3 * G)) / 2;
+  let html = `<div class="a c mono" style="top:250px;font-size:40px;letter-spacing:0.12em">${d.slice(0, n)}${cursor}</div>`;
+  tiles.forEach(([name, pct, close, t0], i) => {
+    const p = P(lt, t0 - 0.1, 0.8, E.spring);
+    const c = P(lt, t0, 1.1);
+    html += `<div class="card" style="left:${x0 + i * (W + G)}px;top:400px;width:${W}px;height:280px;padding:34px;${pop(p)};opacity:${clamp(p * 1.6) * dim}">
+      <div class="lab">${name}</div>
+      <div class="mono red" style="font-size:84px;font-weight:500;margin-top:42px;letter-spacing:-0.02em">${(pct * c).toFixed(2)}%</div>
+      <div class="mono faint" style="font-size:24px;margin-top:14px">close ${close}</div>
+    </div>`;
+  });
+  const q = P(lt, B('different') - 0.35, 0.9);
+  html += `<div class="a c h2" style="top:760px;${rise(q)}">Something was <span class="red">different.</span></div>`;
+  return html;
+};
+
+// 02 · CoreWeave
+SRC.s02 = 'Source: TheStreet, 16 Oct 2026 · debt figure as reported';
+R.s02 = (lt, B) => {
+  const names = [['NVIDIA', B('Nvidia')], ['MICROSOFT', B('Microsoft')], ['GOOGLE', B('Google')]];
+  const cw = B('CoreWeave');
+  const out = P(lt, cw - 0.55, 0.45, E.inout);
+  let html = '';
+  names.forEach(([nm, t0], i) => {
+    const p = P(lt, t0 - 0.15, 0.5);
+    const s = P(lt, t0 + 0.25, 0.35, E.inout);
+    html += `<div class="a" style="left:50%;top:${300 + i * 170}px;transform:translateX(-50%) translateY(${(1 - p) * 30 - out * 40}px);opacity:${clamp(p) * (1 - out) * (i === 0 || lt < t0 + 2 ? 1 : 1)}">
+      <div class="h1 faint" style="position:relative;white-space:nowrap">${nm}<div class="strike" style="width:${104 * s}%"></div></div></div>`;
+  });
+  const up = P(lt, B('its debt') - 0.3, 0.9, E.inout);
+  const cp = P(lt, cw - 0.05, 0.9, E.spring);
+  html += `<div class="a c" style="top:${360 - up * 210}px;${pop(cp)}"><div class="h0">CoreWeave</div></div>`;
+  const sub = P(lt, B('buys AI chips') - 0.1, 0.7);
+  html += `<div class="a c h4 muted" style="top:${600 - up * 210}px;${rise(sub)}">Buys AI chips. Rents out the computing power.</div>`;
+  const bd = P(lt, B('twelve percent') - 0.15, 0.6, E.spring);
+  html += `<div class="a c" style="top:${700 - up * 210}px;${pop(bd)}"><span class="pill" style="background:var(--red);color:#fff;font-size:34px">−12% BY LUNCHTIME</span></div>`;
+  const dc = P(lt, B('Roughly fifty') - 0.05, 2.0, E.out);
+  const dp = P(lt, B('Roughly fifty') - 0.3, 0.6);
+  html += `<div class="a c lab" style="top:600px;${rise(dp)}">Debt, approximately</div>
+    <div class="a c mono" style="top:650px;font-size:150px;font-weight:500;letter-spacing:-0.04em;${rise(dp)}">$${fmt(50e9 * dc)}</div>`;
+  return html;
+};
+
+// 03 · Title
+SRC.s03 = '';
+R.s03 = (lt, B) => {
+  const m = P(lt, -0.3, 1.6, E.lin);
+  const t0 = B('Is AI a bubble');
+  const tp = P(lt, t0 - 0.1, 0.9, E.spring);
+  const a = P(lt, B('Not, is AI useful') - 0.1, 0.6);
+  const as = P(lt, B('It obviously is'), 0.4, E.inout);
+  const b = P(lt, B('prices people are paying') - 0.2, 0.7);
+  const c = P(lt, B('borrowed money') - 0.3, 0.7, E.spring);
+  return `<div class="a c" style="top:150px">${signal(190, m, P(lt, 1.2, 0.4))}</div>
+    <div class="a c h0" style="top:390px;${pop(tp)}">Is AI a bubble?</div>
+    <div class="a c h4 faint" style="top:640px;${rise(a)}"><span style="position:relative">Not “is AI useful?”<span class="strike" style="height:5px;width:${104 * as}%"></span></span></div>
+    <div class="a c h3" style="top:720px;${rise(b)}">Will today’s prices still make sense in five years?</div>
+    <div class="a c" style="top:860px;${pop(c)}"><span class="pill" style="border:2px solid var(--red);color:var(--red);font-size:30px">FOLLOW THE DEBT →</span></div>`;
+};
+
+// 04 · What a bubble is (illustrative chart)
+SRC.s04 = 'Illustrative chart, not real data';
+R.s04 = (lt, B) => {
+  const h1 = P(lt, B('Prices going up') - 0.2, 0.6);
+  const swap = P(lt, B('A bubble is') - 0.2, 0.5, E.inout);
+  const crash = P(lt, B("Until it doesn't") - 0.05, 0.7, E.inout);
+  const draw = P(lt, B('A bubble is') - 0.2, Math.max(1, B("Until it doesn't") - B('A bubble is') - 0.4), E.inout);
+  const X0 = 200, Y0 = 940, Wd = 1250, Ht = 520, N = 10;
+  const price = (x) => 100 * Math.pow(1.33, x);
+  const cash = (x) => 100 * Math.pow(1.09, x);
+  const ymax = price(N);
+  const sx = (x) => X0 + (x / N) * Wd, sy = (v) => Y0 - (v / ymax) * Ht;
+  const xm = draw * N;
+  let pp = [], cp = [];
+  for (let i = 0; i <= 80; i++) { const x = (i / 80) * xm; pp.push([sx(x), sy(price(x))]); cp.push([sx(x), sy(cash(x))]); }
+  if (crash > 0) { // price falls back to the cash line over the next ~year
+    const k = 24;
+    for (let j = 1; j <= k; j++) {
+      const f = (j / k) * crash, xe = N + 0.9 * f;
+      const drop = E.inout(f);
+      pp.push([sx(xe), sy(price(N) + (cash(xe) * 1.15 - price(N)) * drop)]);
+      cp.push([sx(xe), sy(cash(xe))]);
+    }
+  }
+  const path = (pts) => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const gap = pp.concat(cp.slice().reverse());
+  const last = pp[pp.length - 1], lastC = cp[cp.length - 1];
+  return `<div class="a h3" style="left:160px;top:150px;width:1600px;opacity:${clamp(h1) * (1 - swap)};transform:translateY(${(1 - h1) * 30}px)">Prices going up <span class="red">isn’t</span> a bubble.</div>
+    <div class="a h3" style="left:160px;top:150px;width:1600px;${rise(swap)}">A bubble is price <span class="red">outrunning</span> the cash.</div>
+    <svg class="a" style="left:0;top:0" width="1920" height="1080">
+      <line x1="${X0}" y1="${Y0}" x2="${X0 + Wd + 120}" y2="${Y0}" stroke="#3a3a40" stroke-width="2"/>
+      <path d="${path(gap)} Z" fill="#e5251b" opacity="${0.16 * (1 - crash * 0.7)}"/>
+      <path d="${path(cp)}" stroke="#a3a39e" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="${path(pp)}" stroke="#f2f0eb" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${draw > 0.02 ? `<circle cx="${last[0]}" cy="${last[1]}" r="10" fill="#f2f0eb"/>` : ''}
+    </svg>
+    <div class="a mono" style="left:${last[0] - 40}px;top:${last[1] - 64}px;font-size:26px;opacity:${clamp(draw * 4) * (1 - crash)}">PRICE</div>
+    <div class="a mono muted" style="left:${lastC[0] + 26}px;top:${lastC[1] + 4}px;font-size:24px;line-height:1.3;opacity:${clamp(draw * 4)}">CASH THE<br/>BUSINESS MAKES</div>
+    <div class="a h4 red" style="left:${sx(N * 0.72)}px;top:${(sy(price(N * 0.9)) + sy(cash(N * 0.9))) / 2 + 30}px;opacity:${clamp((draw - 0.8) * 5) * (1 - crash)}">the gap = the story</div>
+    <div class="a h2" style="left:200px;top:300px;${rise(crash)}">Until it <span class="red">doesn’t.</span></div>`;
+};
+
+// 05 · Present value
+SRC.s05 = 'Illustration: £100 a year for 10 years, discounted at 5%';
+R.s05 = (lt, B) => {
+  const appear = B('every pound');
+  const shrink = P(lt, B('worth less') - 0.1, 1.4, E.inout);
+  const sum = P(lt, B('Add them all up') - 0.1, 1.3, E.inout);
+  const guess = P(lt, B('just a guess') - 0.2, 0.7);
+  const bill = P(lt, B('reality sends the bill') - 0.2, 0.7, E.spring);
+  const lift = P(lt, B('just a guess') - 0.4, 0.8, E.inout);
+  let html = `<div class="a lab" style="left:160px;top:170px;opacity:${clamp((lt - appear) * 2) * (1 - lift)}">One share = a slice of every future year’s profit</div>`;
+  let total = 0;
+  for (let i = 1; i <= 10; i++) {
+    const f = 1 / Math.pow(1.05, i); total += 100 * f;
+    const p = P(lt, appear + i * 0.12, 0.5, E.spring);
+    const sc = 1 - (1 - f) * shrink;
+    const x = 160 + (i - 1) * 150, tx = 1080 + 40, ty = 560;
+    const cx = x + (tx - x) * sum, cy = 300 + (ty - 300) * sum;
+    const v = 100 * (1 - (1 - f) * shrink);
+    html += `<div class="a" style="left:${cx}px;top:${cy - lift * 120}px;width:124px;height:124px;opacity:${clamp(p * 1.5) * (1 - sum * 0.9) * (1 - lift)};transform:scale(${(0.6 + 0.4 * p) * sc})">
+      <div style="width:124px;height:124px;border-radius:50%;border:3px solid ${shrink > 0.1 ? 'var(--muted)' : 'var(--text)'};display:grid;place-items:center;font-family:var(--mono);font-size:28px;font-weight:500">£${fmt(v)}</div>
+      <div class="mono faint" style="text-align:center;font-size:20px;margin-top:10px">YEAR ${i}</div></div>`;
+  }
+  const bx = P(lt, B('Add them all up') + 0.6, 0.7, E.spring);
+  html += `<div class="card" style="left:560px;top:${500 - lift * 120}px;width:800px;height:220px;padding:36px 44px;${pop(bx)};opacity:${clamp(bx * 1.6) * (1 - lift * 0.0)}">
+      <div class="lab">Worth today</div>
+      <div style="display:flex;align-items:baseline;gap:28px;margin-top:20px"><div class="mono" style="font-size:96px;font-weight:500">£${fmt(total * P(lt, B('Add them all up') + 0.6, 1.2))}</div><div class="mono muted" style="font-size:30px">from £1,000 of future profit</div></div></div>`;
+  html += `<div class="a c h2" style="top:${780}px;${rise(guess)}">A share price is a <span class="red">guess</span> about the future.</div>
+    <div class="a c h4 muted" style="top:${900}px;${rise(bill)}">Too hopeful → too expensive → reality sends the bill.</div>`;
+  return html;
+};
+
+// 06 · The buildout runs on debt
+SRC.s06 = '';
+R.s06 = (lt, B) => {
+  const qs = P(lt, B('Not just') - 0.5, 0.6, E.inout);
+  const boxes = [
+    ['CHIPS', 'the hardware', B('AI runs on chips')],
+    ['DATA CENTRES', 'billions up front', B('Chips live in data centres')],
+    ['CAPACITY', 'built & racked', B('build the capacity')],
+    ['AI LABS', 'rent the compute', B('rent it to AI labs')],
+  ];
+  const W = 330, G = 100, x0 = (1920 - (4 * W + 3 * G)) / 2, y = 420;
+  let html = `<div style="opacity:${1 - qs};transform:translateY(${-qs * 60}px);position:absolute;inset:0">`;
+  boxes.forEach(([nm, sub, t0], i) => {
+    const p = P(lt, t0 - 0.1, 0.6, E.spring);
+    const hot = i === 1 ? P(lt, B('cost billions') - 0.1, 0.5) : 0;
+    html += `<div class="card" style="left:${x0 + i * (W + G)}px;top:${y}px;width:${W}px;height:170px;padding:30px;${pop(p)};border-color:${hot > 0.5 ? 'var(--red)' : 'var(--line)'}">
+      <div style="font-size:40px;font-weight:600;letter-spacing:-0.01em">${nm}</div><div class="mono muted" style="font-size:22px;margin-top:14px">${sub}</div></div>`;
+    if (i < 3) { const ap = P(lt, boxes[i + 1][2] - 0.2, 0.4); html += `<div class="arrow" style="left:${x0 + i * (W + G) + W + 14}px;top:${y + 84}px;width:${(G - 32) * ap}px;opacity:${clamp(ap * 3)}"></div>`; }
+  });
+  const bt = P(lt, B('biggest tech companies') - 0.2, 0.7);
+  html += `<div class="a" style="left:${x0}px;top:250px;width:${4 * W + 3 * G}px;${rise(bt)}">
+      <div style="height:22px;border:3px solid var(--muted);border-bottom:none;border-radius:14px 14px 0 0"></div>
+      <div class="lab" style="text-align:center;margin-top:-62px;color:var(--text)">BIG TECH · pays from its own profits</div></div>`;
+  const lo = P(lt, B('borrowed money') - 0.2, 0.7, E.spring);
+  const la = P(lt, B('take out loans') - 0.1, 0.6);
+  html += `<div class="card" style="left:${x0}px;top:760px;width:${3 * W + 2 * G}px;height:140px;padding:26px 32px;border-color:var(--red);${pop(lo)}">
+      <div class="lab red">The leveraged layer</div><div class="h4" style="margin-top:12px">Borrows to buy chips, then rents them out</div></div>
+    <div class="arrow red" style="left:${x0 + 165}px;top:750px;width:${135 * la}px;transform:rotate(-90deg);transform-origin:0 0;opacity:${clamp(la * 3)}"></div>
+    <div class="a mono red" style="left:${x0 + 190}px;top:665px;font-size:24px;opacity:${clamp(la)}">LOANS</div>`;
+  const ok = P(lt, B('brilliant business') - 0.2, 0.6);
+  html += `<div class="a mono green" style="left:${x0}px;top:930px;font-size:26px;${rise(ok)}">booming demand + cheap money = great business</div>`;
+  html += `</div>`;
+  const q1 = P(lt, B('will AI make money') - 0.15, 0.7, E.spring);
+  const q2 = P(lt, B('can everyone afford') - 0.15, 0.7, E.spring);
+  html += `<div class="card" style="left:260px;top:330px;width:1400px;height:170px;padding:36px 48px;${pop(q1)}">
+      <div class="lab">Question 1</div><div class="h3" style="margin-top:10px">Will AI make money?</div></div>
+    <div class="card" style="left:260px;top:540px;width:1400px;height:210px;padding:36px 48px;border-color:var(--red);border-width:3px;${pop(q2)}">
+      <div class="lab red">Question 2 · the hidden one</div><div class="h3" style="margin-top:10px">Can everyone afford the interest while they wait?</div></div>`;
+  return html;
+};
+
+// 07 · Huang quote
+SRC.s07 = 'Paraphrased from remarks reported by TheStreet, 16 Oct 2026';
+R.s07 = (lt, B) => {
+  const q = P(lt, -0.1, 0.9);
+  const dim = P(lt, B('Think about that') - 0.2, 0.7);
+  const nv = P(lt, B('the market is nervous') - 0.3, 0.8, E.spring);
+  return `<div class="a" style="left:286px;top:300px;width:10px;height:${300 * q}px;background:var(--red);border-radius:5px"></div>
+    <div class="a h2" style="left:330px;top:290px;width:1300px;${rise(q)};opacity:${clamp(q) * (1 - 0.55 * dim)}">CoreWeave’s finances are getting stronger. Nvidia doesn’t need to step in.</div>
+    <div class="a mono muted" style="left:334px;top:620px;font-size:28px;${rise(P(lt, 0.8, 0.7))};opacity:${clamp(P(lt, 0.8, 0.7)) * (1 - 0.55 * dim)}">— JENSEN HUANG, CEO, NVIDIA · PARAPHRASED</div>
+    <div class="a h2" style="left:330px;top:780px;${pop(nv)}">→ The market is <span class="red">nervous.</span></div>`;
+};
+
+// 08 · The trigger
+SRC.s08 = 'Sources: TheStreet, 16 Oct 2026 · Federal Reserve, 16 Sep 2026';
+R.s08 = (lt, B) => {
+  const h = P(lt, B('Not an AI announcement') - 0.2, 0.6);
+  const nodes = [
+    ['US INFLATION', 'hotter than expected', B('inflation came in hotter')],
+    ['RATES', 'higher for longer', B('stay high for longer')],
+    ['BOND YIELDS', '↑ climbing', B('bond yields climb')],
+  ];
+  const W = 440, G = 120, x0 = (1920 - (3 * W + 2 * G)) / 2, y = 430;
+  let html = `<div class="a h3" style="left:${x0}px;top:200px;${rise(h)}">The trigger wasn’t AI. It was <span class="red">one inflation number.</span></div>`;
+  nodes.forEach(([nm, sub, t0], i) => {
+    const p = P(lt, t0 - 0.15, 0.6, E.spring);
+    html += `<div class="card" style="left:${x0 + i * (W + G)}px;top:${y}px;width:${W}px;height:190px;padding:34px;${pop(p)}">
+      <div style="font-size:44px;font-weight:600">${nm}</div><div class="mono ${i === 2 ? 'red' : 'muted'}" style="font-size:26px;margin-top:16px">${sub}</div></div>`;
+    if (i < 2) { const ap = P(lt, nodes[i + 1][2] - 0.25, 0.4); html += `<div class="arrow" style="left:${x0 + i * (W + G) + W + 16}px;top:${y + 94}px;width:${(G - 36) * ap}px;opacity:${clamp(ap * 3)}"></div>`; }
+  });
+  const st = P(lt, B('Federal Reserve') - 0.1, 0.55, E.spring);
+  html += `<div class="a" style="left:50%;top:740px;transform:translateX(-50%) rotate(-2deg) scale(${1.25 - 0.25 * st});opacity:${clamp(st * 1.5)}">
+      <div class="mono red" style="border:4px solid var(--red);border-radius:12px;padding:20px 36px;font-size:36px;font-weight:700;letter-spacing:0.06em;white-space:nowrap">FED +0.25 PT · 16 SEP 2026 · FIRST HIKE SINCE 2023</div></div>`;
+  return html;
+};
+
+// 09 · Hit twice
+SRC.s09 = 'Illustrative maths: $50bn × 1 pt; £100 discounted over 10 years';
+R.s09 = (lt, B) => {
+  const top = P(lt, B('hit AI companies twice') - 0.2, 0.6);
+  const p1 = P(lt, B('first hit') - 0.15, 0.7, E.spring);
+  const m1 = P(lt, B('five hundred million') - 0.1, 1.4);
+  const p2 = P(lt, B('second hit') - 0.15, 0.7, E.spring);
+  const t3 = B('three percent'), t7 = B('seven percent');
+  const v3 = 100 / Math.pow(1.03, 10), v7 = 100 / Math.pow(1.07, 10);
+  const a3 = P(lt, t3 - 0.1, 1.0), a7 = P(lt, t7 - 0.1, 1.2, E.inout);
+  const val = lt < t3 - 0.1 ? null : v3 * a3 + (v7 - v3) * a7;
+  const rate = a7 > 0.02 ? 3 + 4 * a7 : 3;
+  const less = P(lt, B('A third less value') - 0.1, 0.5, E.spring);
+  const fin = P(lt, B('hit the hardest') - 0.3, 0.8);
+  const L = 160, W = 760;
+  return `<div class="a lab" style="left:${L}px;top:150px;${rise(top)}">Higher rates hit AI <span class="red">twice</span></div>
+    <div class="card" style="left:${L}px;top:230px;width:${W}px;height:600px;padding:48px;${pop(p1)}">
+      <div class="lab red">Hit #1 · The interest bill</div>
+      <div class="mono" style="font-size:44px;margin-top:60px">$50bn debt</div>
+      <div class="mono muted" style="font-size:44px;margin-top:16px">× 1 extra point of interest</div>
+      <div style="height:2px;background:var(--line-strong);margin:36px 0"></div>
+      <div class="mono" style="font-size:100px;font-weight:500;letter-spacing:-0.03em">≈ $${fmt(500 * m1)}m</div>
+      <div class="mono muted" style="font-size:30px;margin-top:10px">every year, before earning anything</div>
+    </div>
+    <div class="card" style="left:${L + W + 80}px;top:230px;width:${W}px;height:600px;padding:48px;${pop(p2)}">
+      <div class="lab red">Hit #2 · Future profits shrink</div>
+      <div class="h4" style="margin-top:56px">£100 of profit, 10 years away, is worth today…</div>
+      <div style="display:flex;align-items:baseline;gap:30px;margin-top:40px">
+        <div class="mono" style="font-size:130px;font-weight:500;letter-spacing:-0.04em">${val === null ? '£?' : '£' + fmt(val)}</div>
+        <div class="mono ${rate > 3.05 ? 'red' : 'muted'}" style="font-size:44px">at ${rate.toFixed(0)}%</div>
+      </div>
+      <div style="height:22px;background:var(--surface-3);border-radius:11px;margin-top:34px;overflow:hidden"><div style="height:100%;width:${val === null ? 100 : val}%;background:${rate > 3.05 ? 'var(--red)' : 'var(--text)'};border-radius:11px"></div></div>
+      <div style="margin-top:34px;${pop(less)}"><span class="pill" style="background:var(--red);color:#fff">SAME PROFIT · −32% VALUE</span></div>
+    </div>
+    <div class="a c h4" style="top:890px;${rise(fin)}">AI is priced on profits years away, so rate rises hit it <span class="red">hardest.</span></div>`;
+};
+
+// 10 · Opposite stories
+SRC.s10 = 'Source: TheStreet, 16 Oct 2026 (sector moves; Brent intraday)';
+R.s10 = (lt, B) => {
+  const l = P(lt, B('tech stocks fell') - 0.15, 0.7, E.spring);
+  const r = P(lt, B('energy stocks rose') - 0.15, 0.7, E.spring);
+  const o = P(lt, B('oil trading') - 0.1, 0.6);
+  const s = P(lt, B('Same market') - 0.2, 0.6, E.spring);
+  return `<div class="a" style="left:0;top:0;width:960px;height:1080px;background:linear-gradient(180deg, rgba(229,37,27,0.10), transparent 70%);opacity:${l}"></div>
+    <div class="a" style="left:960px;top:0;width:960px;height:1080px;background:linear-gradient(180deg, rgba(95,214,164,0.10), transparent 70%);opacity:${r}"></div>
+    <div class="a" style="left:959px;top:180px;width:2px;height:720px;background:var(--line-strong)"></div>
+    <div class="a" style="left:0;width:960px;top:300px;text-align:center;${pop(l)}"><div class="lab">Tech sector</div><div class="mono red" style="font-size:180px;font-weight:500;letter-spacing:-0.05em;margin-top:30px">▼3%+</div></div>
+    <div class="a" style="left:960px;width:960px;top:300px;text-align:center;${pop(r)}"><div class="lab">Energy sector</div><div class="mono green" style="font-size:180px;font-weight:500;letter-spacing:-0.05em;margin-top:30px">▲2.52%</div>
+      <div class="mono muted" style="font-size:32px;margin-top:24px;opacity:${o}">Brent ≈ $110 a barrel</div></div>
+    <div class="a c" style="top:800px;${pop(s)}"><span class="pill" style="background:var(--text);color:var(--bg);font-size:32px">SAME MARKET · SAME DAY</span></div>`;
+};
+
+// 11 · 2000 vs 2026
+SRC.s11 = 'Nasdaq Composite peak-to-trough, Mar 2000 – Oct 2002';
+R.s11 = (lt, B) => {
+  const sw = P(lt, B('honest take') - 0.3, 0.9, E.inout);
+  const a = P(lt, B('dot-com bubble') - 0.2, 0.6);
+  const r = P(lt, B('internet was real too') - 0.2, 0.6);
+  const n = P(lt, B('seventy-eight percent') - 0.2, 1.4);
+  let html = `<div style="position:absolute;inset:0;opacity:${1 - sw};transform:translateX(${-sw * 200}px)">
+      <div class="a lab" style="left:200px;top:220px;${rise(a)}">The dot-com bubble · 2000–2002</div>
+      <div class="a h3" style="left:200px;top:290px;${rise(r)}">The internet was real too.</div>
+      <div class="a mono red" style="left:190px;top:420px;font-size:300px;font-weight:500;letter-spacing:-0.06em;${rise(clamp(n * 3))}">−${fmt(78 * n)}%</div>
+      <div class="a h4 muted" style="left:200px;top:780px;${rise(P(lt, B('sprinted miles ahead') - 0.2, 0.6))}">Nasdaq, peak to trough. Prices had sprinted ahead of profits.</div></div>`;
+  const c1 = P(lt, B("didn't make money") - 0.2, 0.6);
+  const c2 = P(lt, B('make enormous amounts') - 0.2, 0.6);
+  const c3 = P(lt, B('layer underneath') - 0.2, 0.7, E.spring);
+  const c4 = P(lt, B('picks and shovels') - 0.3, 0.6);
+  html += `<div style="position:absolute;inset:0;opacity:${sw};transform:translateX(${(1 - sw) * 200}px)">
+      <div class="a lab" style="left:200px;top:180px">2000 vs 2026</div>
+      <div class="card" style="left:200px;top:250px;width:1520px;height:150px;padding:34px 44px;${rise(c1)};display:flex;align-items:center;justify-content:space-between">
+        <div class="h4">2000 · most dot-com leaders</div><div class="mono red" style="font-size:34px">didn’t make money</div></div>
+      <div class="card" style="left:200px;top:430px;width:1520px;height:150px;padding:34px 44px;${rise(c2)};display:flex;align-items:center;justify-content:space-between">
+        <div class="h4">2026 · the biggest AI spenders</div><div class="mono green" style="font-size:34px">hugely profitable</div></div>
+      <div class="card" style="left:200px;top:640px;width:1520px;height:170px;padding:34px 44px;border:3px solid var(--red);${pop(c3)};display:flex;align-items:center;justify-content:space-between">
+        <div><div class="lab red">The layer underneath</div><div class="h4" style="margin-top:10px">Borrowed heavily to build the picks and shovels</div></div>
+        <div class="mono red" style="font-size:30px;text-align:right;${rise(c4)}">where I’d look<br/>for cracks ←</div></div></div>`;
+  return html;
+};
+
+// 12 · What I'm watching
+SRC.s12 = '';
+R.s12 = (lt, B) => {
+  const q = P(lt, -0.1, 0.6);
+  const k = P(lt, B("I don't know") - 0.1, 0.5, E.spring);
+  const up = P(lt, B("exactly what I'm watching") - 0.3, 0.8, E.inout);
+  const items = [
+    ['01', 'Big Tech earnings', 'is AI spending turning into revenue?', B('One. Big')],
+    ['02', 'Interest rates', 'Fed meeting · 27–28 October', B('Two. Interest')],
+    ['03', 'The most indebted names', 'the leveraged layer', B('And three')],
+  ];
+  const end = P(lt, B('If those hold up') - 0.3, 0.7, E.inout);
+  let html = `<div style="position:absolute;inset:0;opacity:${1 - up}"><div class="a c h1" style="top:340px;${rise(q)}">Is AI a bubble?</div>
+      <div class="a c h2 red" style="top:520px;${pop(k)}">I don’t know.</div></div>`;
+  html += `<div style="position:absolute;inset:0;opacity:${up * (1 - end)}"><div class="a lab" style="left:240px;top:200px">What I’m watching</div>`;
+  items.forEach(([n, a, b, t0], i) => {
+    const p = P(lt, t0 - 0.15, 0.6, E.spring);
+    html += `<div class="card" style="left:240px;top:${270 + i * 210}px;width:1440px;height:180px;padding:34px 44px;display:flex;align-items:center;gap:44px;${pop(p)}">
+      <div class="mono red" style="font-size:64px;font-weight:500">${n}</div>
+      <div><div class="h3">${a}</div><div class="mono muted" style="font-size:26px;margin-top:8px">${b}</div></div></div>`;
+  });
+  html += `</div>`;
+  const w1 = P(lt, B('wobble') - 0.15, 0.6, E.spring);
+  const w2 = P(lt, B('warning') - 0.15, 0.6, E.spring);
+  html += `<div style="position:absolute;inset:0;opacity:${end}">
+      <div class="a c lab" style="top:300px">16 October 2026 was a…</div>
+      <div class="a" style="left:0;right:0;top:400px;display:flex;justify-content:center;align-items:center;gap:60px">
+        <div class="h0" style="${pop(w1)}">wobble</div><div class="h1 faint" style="opacity:${clamp(w2 * 2)}">or</div><div class="h0 red" style="${pop(w2)}">warning?</div></div></div>`;
+  return html;
+};
+
+// 13 · Close
+SRC.s13 = 'Not financial advice · Figures as of 16–17 Oct 2026';
+R.s13 = (lt, B) => {
+  const m = P(lt, -0.2, 1.4, E.lin);
+  const tag = 'dmu/quant_';
+  const n = Math.floor(clamp((lt - 0.6) / 0.8) * tag.length);
+  const soc = P(lt, B('quant finance society') - 0.2, 0.7);
+  const card = P(lt, B('poker game') - 0.2, 0.8, E.spring);
+  const link = P(lt, B("link's in the description") - 0.1, 0.6);
+  const bye = P(lt, B('next one') + 0.4, 0.8, E.inout);
+  return `<div style="position:absolute;inset:0;transform:translateX(${-card * 380}px)">
+      <div class="a" style="left:50%;top:250px;transform:translateX(-50%)">${signal(220, m, P(lt, 1.1, 0.4))}</div>
+      <div class="a c mono" style="top:520px;font-size:64px">${tag.slice(0, n)}<span style="color:var(--red)">${n < tag.length ? '▍' : ''}</span></div>
+      <div class="a c h4" style="top:630px;${rise(soc)}">DMU Quant Society</div>
+      <div class="a c mono muted" style="top:700px;font-size:26px;${rise(soc)}">De Montfort University · Leicester · building in public</div></div>
+    <div class="card" style="left:1080px;top:260px;width:660px;height:520px;padding:52px;${pop(card)};opacity:${clamp(card * 1.5) * (1 - bye * 0.0)}">
+      <div class="lab red">Play it</div>
+      <div class="h2" style="margin-top:22px;font-size:76px">Poker Finance</div>
+      <div class="h4 muted" style="margin-top:18px">Can you beat Wall Street at poker? 37 bots that play like trading firms.</div>
+      <div class="mono" style="font-size:26px;margin-top:40px;padding:16px 20px;border:1.5px solid var(--line-strong);border-radius:12px">dmu-poker-finance.vercel.app</div>
+      <div class="mono faint" style="font-size:18px;margin-top:20px">Free · play money · caricatures, no firm affiliated</div></div>
+    <div class="a mono" style="left:1080px;top:820px;font-size:30px;${rise(link)}"><span class="red">↓</span> link in the description</div>`;
+};
+
+// ------------------------------------------------------------------ SFX cues (time-resolved after layout)
+const SFX_MAP = {
+  s01: [[0.05, 'tick'], ['Nasdaq', 'pop'], ['S&P', 'pop'], ['Small companies', 'pop'], ['different', 'swish']],
+  s02: [['Nvidia', 'tick'], ['Microsoft', 'tick'], ['Google', 'tick'], ['CoreWeave', 'hit'], ['twelve percent', 'pop'], ['Roughly fifty', 'swish']],
+  s03: [[0.0, 'chime'], ['Is AI a bubble', 'hit'], ['borrowed money', 'pop']],
+  s04: [['A bubble is', 'swish'], ["Until it doesn't", 'whoosh']],
+  s05: [['every pound', 'chip'], ['Add them all up', 'swish'], ['reality sends the bill', 'pop']],
+  s06: [['AI runs on chips', 'pop'], ['Chips live in data centres', 'pop'], ['borrowed money', 'hit'], ['will AI make money', 'pop'], ['can everyone afford', 'hit']],
+  s07: [[0.0, 'swish'], ['the market is nervous', 'pop']],
+  s08: [['inflation came in hotter', 'pop'], ['stay high for longer', 'pop'], ['bond yields climb', 'pop'], ['Federal Reserve', 'hit']],
+  s09: [['first hit', 'pop'], ['second hit', 'pop'], ['seven percent', 'tick'], ['A third less value', 'hit']],
+  s10: [['tech stocks fell', 'pop'], ['energy stocks rose', 'pop'], ['Same market', 'click']],
+  s11: [['seventy-eight percent', 'hit'], ['honest take', 'whoosh'], ['layer underneath', 'pop']],
+  s12: [["I don't know", 'hit'], ['One. Big', 'pop'], ['Two. Interest', 'pop'], ['And three', 'pop'], ['warning', 'hit']],
+  s13: [[0.0, 'chime'], ['poker game', 'chip']],
+};
+const SFX = [];
+TL.scenes.forEach((sc, i) => {
+  const B = beatFn(sc);
+  if (i > 0) SFX.push({ t: Math.max(0, sc.start - 0.35), type: 'whoosh' });
+  (SFX_MAP[sc.id] || []).forEach(([w, type]) => SFX.push({ t: +(sc.start + (typeof w === 'number' ? w : B(w))).toFixed(3), type }));
+});
+SFX.sort((a, b) => a.t - b.t);
+const DURATION = TL.duration;
+
+// ------------------------------------------------------------------ seek
+const world = document.getElementById('world');
+const chapterEl = document.getElementById('chapter');
+const sourceEl = document.getElementById('source');
+const progressEl = document.getElementById('progress');
+const cursorEl = document.querySelector('#brand b');
+const grain = document.getElementById('grain');
+const beats = TL.scenes.map(beatFn);
+let lastChapter = null;
+
+function seek(t) {
+  let html = '';
+  const S = TL.scenes;
+  let current = 0;
+  for (let i = 0; i < S.length; i++) {
+    const sc = S[i];
+    const s0 = sc.start;
+    const s1 = i + 1 < S.length ? S[i + 1].start : DURATION + 5;
+    if (t >= s0 - 0.35) current = i;
+    if (t < s0 - 0.4 || t > s1 + 0.05) continue;
+    const lt = t - s0;
+    const a = clamp((t - (s0 - 0.4)) / 0.55);
+    const b = i + 1 < S.length ? clamp((s1 - t) / 0.45) : clamp((DURATION - t) / 0.8);
+    const op = E.inout(Math.min(a, b));
+    const dx = (1 - E.out(a)) * 80 - (1 - E.out(b)) * 80;
+    const zoom = 1 + 0.02 * clamp(lt / Math.max(1, s1 - s0));
+    html += `<div class="scene" style="opacity:${op};transform:translateX(${dx}px) scale(${zoom})">${R[sc.id](lt, beats[i], sc)}</div>`;
+  }
+  world.innerHTML = html;
+  const sc = S[current];
+  const showCh = sc.chapter !== 'The question';
+  const chOp = t < sc.start - 0.2 ? 0 : 1;
+  chapterEl.innerHTML = showCh ? `<i></i>${sc.chapter}` : '';
+  chapterEl.style.opacity = chOp * clamp((DURATION - t) / 1);
+  sourceEl.textContent = SRC[sc.id] || '';
+  sourceEl.style.opacity = clamp((t - sc.start - 0.8) / 0.6) * 0.95;
+  progressEl.style.width = (100 * clamp(t / DURATION)) + '%';
+  cursorEl.style.opacity = Math.floor(t * 1.8) % 2 === 0 ? 1 : 0.15;
+  grain.style.transform = `translate(${((t * 37) % 7) * 7 - 25}px, ${((t * 53) % 5) * 9 - 20}px)`;
+  const clock = document.getElementById('clock');
+  if (clock) clock.textContent = `${t.toFixed(1)}s / ${DURATION.toFixed(1)}s · ${sc.id} · ${TL.real ? 'voice timings' : 'estimated timings'}`;
+}
+
+// ------------------------------------------------------------------ preview player
+const isRender = location.hash === '#render';
+if (isRender) document.body.classList.add('render');
+let playing = !isRender, t0 = performance.now(), offset = 0;
+function fit() {
+  if (isRender) return;
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  document.getElementById('stage').style.transform = `scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+function now() { return playing ? offset + (performance.now() - t0) / 1000 : offset; }
+function loop() { if (!isRender) { let t = now(); if (t > DURATION) { offset = 0; t0 = performance.now(); t = 0; } seek(t); requestAnimationFrame(loop); } }
+addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { offset = now(); playing = !playing; t0 = performance.now(); e.preventDefault(); }
+  if (e.code === 'ArrowRight') { offset = Math.min(DURATION, now() + 5); t0 = performance.now(); }
+  if (e.code === 'ArrowLeft') { offset = Math.max(0, now() - 5); t0 = performance.now(); }
+  if (/^Digit[1-9]$/.test(e.code)) { const i = +e.code.slice(5) - 1; if (TL.scenes[i]) { offset = TL.scenes[i].start - 0.4; t0 = performance.now(); } }
+});
+seek(0);
+document.fonts.ready.then(() => { if (!isRender) requestAnimationFrame(loop); });
+</script>
+</body>
+</html>

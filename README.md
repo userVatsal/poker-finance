@@ -111,6 +111,7 @@ Hosted on Vercel. Every push to `main` deploys to production; every pull request
 - [Analytics (Vercel + Google Analytics)](docs/analytics.md)
 - [Privacy notice](docs/privacy.md)
 - [Intro video source](video/README.md)
+- [YouTube Episode 01 source](video/ep01-ai-bubble/README.md)
 - [Logo files](brand/README.md)
 
 ## Contributing

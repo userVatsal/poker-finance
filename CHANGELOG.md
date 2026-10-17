@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Vercel Web Analytics (`@vercel/analytics`) for anonymous, cookie-free page-view counts.
 - Google Analytics 4 with a cookie consent banner, game events (start, hands, cash-out, bust, shares, firm views), a footer "Cookie settings" link, a privacy notice (`docs/privacy.md`) and setup guide (`docs/analytics.md`). Configured with `VITE_GA_MEASUREMENT_ID`.
 - 30-second intro film written in code (`video/intro.html`) with a renderer that outputs MP4 with sound (`video/render.py`).
+- YouTube Episode 01, "Is AI a bubble? Follow the debt." (`video/ep01-ai-bubble/`): 1920 × 1080 long-form film written in code, ElevenLabs narration with word-level sync, captions and chapter generation, and a parallel renderer.
 
 ## [0.1.0] - 2026-10-17
 
