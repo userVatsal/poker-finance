@@ -19,9 +19,9 @@
 @font-face { font-family: 'JetBrains Mono'; font-weight: 700; src: url(fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2'); }
 
 :root {
-  --bg: #0b0b0c; --surface: #131315; --surface-2: #1a1a1d; --surface-3: #232327;
-  --line: #2a2a2f; --line-strong: #3a3a40; --text: #f2f2f0; --muted: #a3a39e; --faint: #6e6e6a;
-  --red: #ff3b2f; --card: #fbfbf8; --card-red: #d4261c; --felt: #0f1110;
+  --bg: #0e0e0c; --surface: #131315; --surface-2: #1a1a1d; --surface-3: #232327;
+  --line: #2a2a2f; --line-strong: #3a3a40; --text: #f2f0eb; --muted: #a3a39e; --faint: #6e6e6a;
+  --red: #e5251b; --card: #fbfbf8; --card-red: #d4261c; --felt: #0f1110;
   --mm: #7cc7ff; --quant: #b49cff; --macro: #ffc94d; --pod: #5fd6a4; --trend: #ff8fc8; --bank: #c9d1dc;
   --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
 }
@@ -34,7 +34,7 @@ body { display: grid; place-items: center; min-height: 100vh; }
 }
 #stage::before {
   content: ''; position: absolute; inset: 0;
-  background-image: radial-gradient(#1e1e22 1.6px, transparent 2px); background-size: 24px 24px;
+  background-image: radial-gradient(#1f1f21 1.6px, transparent 2px); background-size: 24px 24px;
 }
 .scene { position: absolute; inset: 0; will-change: transform; }
 .abs { position: absolute; }
@@ -117,7 +117,7 @@ body { display: grid; place-items: center; min-height: 100vh; }
 
   <!-- ============ Scene 1: hook ============ -->
   <section class="scene" id="s1">
-    <svg id="mark1" class="abs" style="left:465px; top:170px" width="150" height="150" viewBox="0 0 64 64"></svg>
+    <svg id="mark1" class="abs" style="left:455px; top:160px" width="170" height="170" viewBox="0 0 400 400"></svg>
     <div class="abs center handle mono" style="top:340px"><span id="handle1"></span><span id="cursor1" class="red">_</span></div>
     <div class="abs center headline" style="top:450px">
       <div><span class="word" id="w0">Can</span> <span class="word" id="w1">you</span> <span class="word" id="w2">beat</span></div>
@@ -183,7 +183,7 @@ body { display: grid; place-items: center; min-height: 100vh; }
 
   <!-- ============ Scene 5: logo reveal ============ -->
   <section class="scene" id="s5">
-    <svg id="mark5" class="abs" style="left:430px; top:150px" width="220" height="220" viewBox="0 0 64 64"></svg>
+    <svg id="mark5" class="abs" style="left:420px; top:140px" width="240" height="240" viewBox="0 0 400 400"></svg>
     <div class="abs center" style="top:410px; font-size:118px; font-weight:600; letter-spacing:-0.045em" id="name5"></div>
     <div class="abs center" style="top:560px; font-size:36px; color:var(--muted)" id="tag5">Can you beat Wall Street at poker?</div>
     <div class="abs center" style="top:650px" id="pills5">
@@ -231,33 +231,41 @@ function swapIn(el, t, start, end) {
   style(el, { o: vis, blur: (1 - vis) * 10, y: (1 - i) * 18 - o * 18 });
 }
 
-// ---------- Signal mark ----------
+// ---------- Signal mark (matches brand/build_logo.py) ----------
+// 24 positions every 15 deg: 23 off-white bars, red bar at 135 deg breaking out of the ring.
 function buildMark(svg) {
   const NS = 'http://www.w3.org/2000/svg';
   const ticks = [];
-  for (let i = 0; i < 12; i++) {
-    if (i === 4) continue;
-    const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
-    const l = document.createElementNS(NS, 'line');
-    l.setAttribute('x1', 32 + Math.cos(a) * 14); l.setAttribute('y1', 32 + Math.sin(a) * 14);
-    l.setAttribute('x2', 32 + Math.cos(a) * 20); l.setAttribute('y2', 32 + Math.sin(a) * 20);
-    l.setAttribute('stroke', '#f2f2f0'); l.setAttribute('stroke-width', '3'); l.setAttribute('stroke-linecap', 'round');
-    l.style.transformOrigin = '32px 32px';
-    svg.appendChild(l); ticks.push(l);
+  for (let k = 0; k < 24; k++) {
+    const a = k * 15;
+    if (a === 135) continue;
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('transform', `rotate(${a} 200 200)`);
+    const r = document.createElementNS(NS, 'rect');
+    r.setAttribute('x', 191); r.setAttribute('y', 62); r.setAttribute('width', 18); r.setAttribute('height', 53);
+    r.setAttribute('fill', '#f2f0eb');
+    r.style.transformOrigin = '200px 88.5px';
+    g.appendChild(r); svg.appendChild(g); ticks.push(r);
   }
-  const tail = document.createElementNS(NS, 'line');
-  tail.setAttribute('x1', 40); tail.setAttribute('y1', 40); tail.setAttribute('x2', 54); tail.setAttribute('y2', 54);
-  tail.setAttribute('stroke', '#ff3b2f'); tail.setAttribute('stroke-width', '5'); tail.setAttribute('stroke-linecap', 'round');
-  tail.setAttribute('stroke-dasharray', '20'); svg.appendChild(tail);
+  const tg = document.createElementNS(NS, 'g');
+  tg.setAttribute('transform', 'rotate(-45 200 200)');
+  const tail = document.createElementNS(NS, 'rect');
+  tail.setAttribute('x', 188.7); tail.setAttribute('y', 263.6); tail.setAttribute('width', 22.6);
+  tail.setAttribute('height', 109.6); tail.setAttribute('fill', '#e5251b');
+  tail.style.transformOrigin = '200px 263.6px';
+  tg.appendChild(tail); svg.appendChild(tg);
   return { ticks, tail };
 }
 function drawMark(mark, t, start, step, tailAt) {
-  mark.ticks.forEach((l, i) => {
+  // Bars spring in clockwise from 12 o'clock, then the red bar extends out of the ring.
+  mark.ticks.forEach((r, i) => {
     const p = spring(prog(t, start + i * step, 0.5));
-    l.style.opacity = clamp01(prog(t, start + i * step, 0.15));
-    l.style.transform = `scale(${lerp(0.4, 1, p)})`;
+    r.style.opacity = clamp01(prog(t, start + i * step, 0.15));
+    r.style.transform = `scale(${lerp(0.3, 1, p)})`;
   });
-  mark.tail.setAttribute('stroke-dashoffset', 20 * (1 - out(prog(t, tailAt, 0.4))));
+  const tp = spring(prog(t, tailAt, 0.55));
+  mark.tail.style.opacity = clamp01(prog(t, tailAt, 0.1));
+  mark.tail.style.transform = `scaleY(${Math.max(0, tp)})`;
 }
 const mark1 = buildMark($('mark1'));
 const mark5 = buildMark($('mark5'));
@@ -428,7 +436,7 @@ function seek(t) {
   $('wmL').style.opacity = wm; $('wmR').style.opacity = wm;
 
   // ----- Scene 1: hook -----
-  drawMark(mark1, t, 0.15, 0.07, 1.05);
+  drawMark(mark1, t, 0.12, 0.036, 1.0);
   const handle = 'dmu/quant';
   $('handle1').textContent = handle.slice(0, Math.round(prog(t, 1.2, 0.6) * handle.length));
   $('cursor1').style.opacity = t < 1.2 || Math.floor(t * 2.2) % 2 === 0 ? 1 : 0;
@@ -509,8 +517,8 @@ function seek(t) {
   cur.style.opacity = clamp01(prog(t, 22.3, 0.2)) * (1 - prog(t, 24.0, 0.3));
   const call = $('bCall');
   if (t > 23.15) {
-    call.style.background = t < 23.6 ? '#f2f2f0' : 'var(--surface-2)';
-    call.style.color = t < 23.6 ? '#0b0b0c' : 'var(--text)';
+    call.style.background = t < 23.6 ? '#f2f0eb' : 'var(--surface-2)';
+    call.style.color = t < 23.6 ? '#0e0e0c' : 'var(--text)';
     call.style.transform = `scale(${1 - press * 0.04})`;
   } else { call.style.background = ''; call.style.color = ''; }
   $('pot4').textContent = t < 23.3 ? 'Pot $19' : 'Pot $26';
@@ -523,7 +531,7 @@ function seek(t) {
   $('felt4').style.borderColor = winGlow > 0 ? 'var(--red)' : 'var(--line)';
 
   // ----- Scene 5: logo -----
-  drawMark(mark5, t, 25.95, 0.045, 26.5);
+  drawMark(mark5, t, 25.9, 0.022, 26.45);
   const name = 'Poker Finance';
   const nameEl = $('name5');
   if (!nameEl.childElementCount) {

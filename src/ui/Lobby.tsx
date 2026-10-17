@@ -5,7 +5,7 @@ import { CONFIG } from '../config';
 import { CURRENCIES, DEFAULT_CURRENCY, getCurrency, stakes } from '../currency/currencies';
 import { formatMoney } from '../currency/format';
 import type { SessionOptions } from '../game/session';
-import { Brand } from './Logo';
+import { Brand, SignalMark } from './Logo';
 
 interface Props {
   onStart: (options: SessionOptions) => void;
@@ -74,6 +74,9 @@ export function Lobby({ onStart, onHowToPlay, onFirms }: Props) {
 
       <main className="container">
         <section className="hero">
+          <div className="hero-mark">
+            <SignalMark size={220} title="DMU Quant Society logo" />
+          </div>
           <div className="eyebrow">{CONFIG.SOCIETY_NAME} presents</div>
           <h1>
             Can you beat Wall Street <em>at poker?</em>

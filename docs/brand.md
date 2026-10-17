@@ -11,18 +11,18 @@ Poker Finance follows the DMU Quant Society identity.
 
 ## Logo
 
-The **Signal** mark: a ring of ticks with a red tail that turns it into a Q. Implemented in `src/ui/Logo.tsx` and `public/favicon.svg`. The wordmark is `dmu/quant` followed by a blinking red cursor `_`.
+The **Signal** mark: 24 positions every 15° around a ring. Twenty-three are off-white bars; the bar at 4:30 is replaced by a longer red bar that breaks out of the ring and turns the O into a Q. All logo files, colours, exact geometry and usage rules are in [`brand/README.md`](../brand/README.md). The wordmark is `dmu/quant` followed by a blinking red cursor `_`.
 
 ## Colours
 
-| Token       | Hex       | Use                                          |
-| ----------- | --------- | -------------------------------------------- |
-| `--bg`      | `#0b0b0c` | Page background                              |
-| `--surface` | `#131315` | Panels and seats                             |
-| `--text`    | `#f2f2f0` | Primary text                                 |
-| `--muted`   | `#a3a39e` | Secondary text                               |
-| `--red`     | `#ff3b2f` | Signal red: raises, winners, primary actions |
-| `--card`    | `#fbfbf8` | Playing cards                                |
+| Token       | Hex       | Use                                                        |
+| ----------- | --------- | ---------------------------------------------------------- |
+| `--bg`      | `#0e0e0c` | Page background (logo black)                               |
+| `--surface` | `#131315` | Panels and seats                                           |
+| `--text`    | `#f2f0eb` | Primary text (logo off-white)                              |
+| `--muted`   | `#a3a39e` | Secondary text                                             |
+| `--red`     | `#e5251b` | Signal red from the logo: raises, winners, primary actions |
+| `--card`    | `#fbfbf8` | Playing cards                                              |
 
 Archetype accents (small dots only): market maker `#7cc7ff`, quant `#b49cff`, macro `#ffc94d`, pod `#5fd6a4`, trend `#ff8fc8`, bank `#c9d1dc`.
 

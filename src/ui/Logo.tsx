@@ -1,36 +1,46 @@
 import { CONFIG } from '../config';
 
-/** The "Signal" mark: a ring of ticks with a red tail that turns it into a Q. */
-export function SignalMark({ size = 28 }: { size?: number }) {
-  const ticks = [];
-  for (let i = 0; i < 12; i++) {
-    if (i === 4) continue; // gap where the tail exits
-    const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
-    const r1 = 14;
-    const r2 = 20;
-    ticks.push(
-      <line
-        key={i}
-        x1={32 + Math.cos(a) * r1}
-        y1={32 + Math.sin(a) * r1}
-        x2={32 + Math.cos(a) * r2}
-        y2={32 + Math.sin(a) * r2}
-      />,
-    );
-  }
+/*
+ * The DMU Quant Society "Signal" mark.
+ * 24 positions every 15°: 23 off-white bars, and a longer red bar at 135° that
+ * breaks out of the ring and turns the O into a Q.
+ * Geometry matches brand/build_logo.py (400 × 400 box, centre 200, 200).
+ */
+const BAR = { w: 18, rIn: 85, rOut: 138 };
+const TAIL = { w: 22.6, rIn: 63.6, rOut: 173.2 };
+const ANGLES = Array.from({ length: 24 }, (_, k) => k * 15).filter((a) => a !== 135);
+
+export const LOGO_RED = '#e5251b';
+
+export function SignalMark({ size = 32, title }: { size?: number; title?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-        {ticks}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 400 400"
+      role={title ? 'img' : undefined}
+      aria-hidden={title ? undefined : true}
+      aria-label={title}
+    >
+      <g fill="currentColor">
+        {ANGLES.map((a) => (
+          <rect
+            key={a}
+            x={200 - BAR.w / 2}
+            y={200 - BAR.rOut}
+            width={BAR.w}
+            height={BAR.rOut - BAR.rIn}
+            transform={`rotate(${a} 200 200)`}
+          />
+        ))}
       </g>
-      <line
-        x1="40"
-        y1="40"
-        x2="54"
-        y2="54"
-        stroke="var(--red)"
-        strokeWidth="5"
-        strokeLinecap="round"
+      <rect
+        x={200 - TAIL.w / 2}
+        y={200 + TAIL.rIn}
+        width={TAIL.w}
+        height={TAIL.rOut - TAIL.rIn}
+        fill={LOGO_RED}
+        transform="rotate(-45 200 200)"
       />
     </svg>
   );

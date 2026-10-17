@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="brand/logo-mark-square-512.png" alt="DMU Quant Society logo" width="112" />
+
 # Poker Finance
 
 **Can you beat Wall Street at poker?**
@@ -107,6 +109,7 @@ Hosted on Vercel. Every push to `main` deploys to production; every pull request
 - [Deployment (Vercel)](docs/deployment.md)
 - [Architecture decision records](docs/adr/)
 - [Intro video source](video/README.md)
+- [Logo files](brand/README.md)
 
 ## Contributing
 
